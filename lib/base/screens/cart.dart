@@ -13,7 +13,9 @@ class Cart extends StatelessWidget {
           style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
         ),
         leading: IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },          
           icon: const Icon(FluentSystemIcons.ic_fluent_arrow_left_filled),
           color: const Color.fromARGB(255, 96, 123, 243),
         ),

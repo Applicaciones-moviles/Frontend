@@ -1,6 +1,7 @@
 import 'package:carconnect_aplication/base/screens/cart.dart';
 import 'package:carconnect_aplication/base/screens/catalogue.dart';
 import 'package:carconnect_aplication/base/screens/login_page.dart';
+import 'package:carconnect_aplication/base/screens/register_page.dart';
 import 'package:flutter/material.dart';
 import 'base/screens/cardescription.dart';
 import 'base/screens/home-client.dart';
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
 
       // home: Registercar(),
       
-      home: const Cart(),
+      home: LoginPage(),
 
       //home: homeCar(),
 

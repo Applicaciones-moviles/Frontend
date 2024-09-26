@@ -1,3 +1,4 @@
+import 'package:carconnect_aplication/base/screens/cart.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -72,7 +73,10 @@ class _CardescriptionState extends State<Cardescription> {
               children: [
                 Text(
                   'Días por alquilar',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.lightBlue),
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.lightBlue),
                 ),
                 Row(
                   children: [
@@ -109,25 +113,30 @@ class _CardescriptionState extends State<Cardescription> {
             SizedBox(height: 20),
             Text(
               'Presentaciones',
-              style: TextStyle(color: Colors.lightBlue, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.lightBlue, fontWeight: FontWeight.bold),
             ),
             Text('Velocidad máxima: 170 km/h\nConsumo: 9.7 l/100 km'),
             SizedBox(height: 10),
             Text(
               'Dimensiones',
-              style: TextStyle(color: Colors.lightBlue, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.lightBlue, fontWeight: FontWeight.bold),
             ),
             Text('Largo/Ancho/Alto: 5.325 / 1.855 / 1.815 mm\nPeso: 2.110 kg'),
             SizedBox(height: 10),
             Text(
               'Propietario',
-              style: TextStyle(color: Colors.lightBlue, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.lightBlue, fontWeight: FontWeight.bold),
             ),
-            Text('Nombre: Erick R.\nTeléfono: 9902229191\nCorreo: ericksl301@gmail.com'),
+            Text(
+                'Nombre: Erick R.\nTeléfono: 9902229191\nCorreo: ericksl301@gmail.com'),
             SizedBox(height: 10),
             Text(
               'Alquiler',
-              style: TextStyle(color: Colors.lightBlue, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.lightBlue, fontWeight: FontWeight.bold),
             ),
             Text('Costo por mes: 800\nCosto por hora: 120'),
             SizedBox(height: 20),
@@ -154,7 +163,12 @@ class _CardescriptionState extends State<Cardescription> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Cart()),
+                );
+              },
               child: Text('Continuar'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.lightBlue,

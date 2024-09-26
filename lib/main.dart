@@ -1,3 +1,4 @@
+import 'package:carconnect_aplication/base/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import 'base/screens/registercar.dart';
 void main() {
@@ -22,7 +23,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       //home: const Cart(),
-      home: Registercar(),
+      // home: Registercar(),
+      home: LoginPage(),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class Cardescription extends StatefulWidget {
   @override
@@ -6,8 +7,43 @@ class Cardescription extends StatefulWidget {
 }
 
 class _CardescriptionState extends State<Cardescription> {
-  int amountDays = 1; // Variable para los días de alquiler
-  double pricePerDay = 120.00; // Precio fijo por día
+  DateTime selectedDate = DateTime.now();
+  int amountDays = 1;
+
+  void _showCalendar() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          height: 400,
+          child: Column(
+            children: [
+              Text(
+                'Selecciona una fecha',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16.0),
+              TableCalendar(
+                firstDay: DateTime.utc(2020, 1, 1),
+                lastDay: DateTime.utc(2025, 12, 31),
+                focusedDay: selectedDate,
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    selectedDate = selectedDay;
+                  });
+                  Navigator.pop(context);
+                },
+                selectedDayPredicate: (day) {
+                  return isSameDay(selectedDate, day);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,48 +51,40 @@ class _CardescriptionState extends State<Cardescription> {
       appBar: AppBar(
         title: Text('Car Description'),
       ),
-      body: SingleChildScrollView( // Añadido para permitir scroll
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Imagen principal en la parte superior
             Image.asset(
               'assets/carro.png',
-              width: double.infinity, // Se ajusta al ancho del contenedor
-              height: 200, // Ajusta la altura de la imagen
-              fit: BoxFit.cover, // Asegura que la imagen cubra el espacio
+              width: double.infinity,
+              height: 200,
+              fit: BoxFit.cover,
             ),
             SizedBox(height: 16.0),
-            // Título del coche
             Text(
               'Kia Sportage 18',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
-            // Días por alquilar
+            SizedBox(height: 16.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Días por alquilar:',
-                  style: TextStyle(fontSize: 16),
+                  'Días por alquilar',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.lightBlue),
                 ),
                 Row(
                   children: [
                     IconButton(
                       icon: Icon(Icons.remove),
                       onPressed: () {
-                        if (amountDays > 1) {
-                          setState(() {
-                            amountDays--;
-                          });
-                        }
+                        setState(() {
+                          if (amountDays > 1) amountDays--;
+                        });
                       },
                     ),
-                    Text(
-                      '$amountDays',
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    Text('$amountDays', style: TextStyle(fontSize: 18)),
                     IconButton(
                       icon: Icon(Icons.add),
                       onPressed: () {
@@ -70,65 +98,76 @@ class _CardescriptionState extends State<Cardescription> {
               ],
             ),
             SizedBox(height: 10),
-            // Mostrar el precio calculado
             Text(
-              'S/. ${(pricePerDay * amountDays).toStringAsFixed(2)}',
+              'S/. ${120 * amountDays}',
               style: TextStyle(fontSize: 18),
             ),
-            SizedBox(height: 20.0),
-            // Descripción final
+            SizedBox(height: 20),
             Text(
-              'SUV versátil, perfecto para viajes largos o escapadas de fin de semana. '
-              'Equipado con tecnología avanzada, amplio espacio interior y un diseño moderno '
-              'que garantiza confort y seguridad. Ideal para familias o grupos, con una excelente '
-              'relación calidad-precio para alquiler por horas.',
-              style: TextStyle(fontSize: 16),
-              textAlign: TextAlign.justify,
+              'SUV versátil, perfecto para viajes largos o escapadas de fin de semana. Equipado con tecnología avanzada, amplio espacio interior y un diseño moderno que garantiza confort y seguridad. Ideal para familias o grupos, con una excelente relación calidad-precio para alquiler por horas.',
             ),
-            SizedBox(height: 20.0), // Espacio antes de las secciones adicionales
-            // Sección de Presentaciones
-            _buildSectionTitle('Presentaciones'),
-            _buildInfo('Velocidad máxima: 170 km/h'),
-            _buildInfo('Consumo: 9.7 l/100 km'),
-            SizedBox(height: 20.0), // Espacio entre secciones
-            // Sección de Dimensiones
-            _buildSectionTitle('Dimensiones'),
-            _buildInfo('Largo/Ancho/Alto: 5.325 / 1.855 / 1.815 mm'),
-            _buildInfo('Peso: 2.110 kg'),
-            SizedBox(height: 20.0), // Espacio entre secciones
-            // Sección de Propietario
-            _buildSectionTitle('Propietario'),
-            _buildInfo('Nombre: Erick R.'),
-            _buildInfo('Teléfono: 9902229191'),
-            _buildInfo('Correo: ericksl301@gmail.com'),
-            SizedBox(height: 20.0), // Espacio entre secciones
-            // Sección de Alquiler
-            _buildSectionTitle('Alquiler'),
-            _buildInfo('Costo por mes: 3600'),
-            _buildInfo('Costo por dia: 120'),
+            SizedBox(height: 20),
+            Text(
+              'Presentaciones',
+              style: TextStyle(color: Colors.lightBlue, fontWeight: FontWeight.bold),
+            ),
+            Text('Velocidad máxima: 170 km/h\nConsumo: 9.7 l/100 km'),
+            SizedBox(height: 10),
+            Text(
+              'Dimensiones',
+              style: TextStyle(color: Colors.lightBlue, fontWeight: FontWeight.bold),
+            ),
+            Text('Largo/Ancho/Alto: 5.325 / 1.855 / 1.815 mm\nPeso: 2.110 kg'),
+            SizedBox(height: 10),
+            Text(
+              'Propietario',
+              style: TextStyle(color: Colors.lightBlue, fontWeight: FontWeight.bold),
+            ),
+            Text('Nombre: Erick R.\nTeléfono: 9902229191\nCorreo: ericksl301@gmail.com'),
+            SizedBox(height: 10),
+            Text(
+              'Alquiler',
+              style: TextStyle(color: Colors.lightBlue, fontWeight: FontWeight.bold),
+            ),
+            Text('Costo por mes: 800\nCosto por hora: 120'),
+            SizedBox(height: 20),
+            GestureDetector(
+              onTap: _showCalendar,
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.lightBlue, width: 2),
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Fecha de reserva: ${selectedDate.toLocal().toString().split(' ')[0]}',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    Icon(Icons.arrow_forward_ios, color: Colors.lightBlue),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {},
+              child: Text('Continuar'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.lightBlue,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  // Método para construir el título de la sección
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Colors.lightBlue, // Color azul claro
-      ),
-    );
-  }
-
-  // Método para construir la información
-  Widget _buildInfo(String info) {
-    return Text(
-      info,
-      style: TextStyle(fontSize: 16, color: Colors.black), // Color negro
     );
   }
 }

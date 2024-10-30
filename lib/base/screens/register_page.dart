@@ -1,5 +1,6 @@
 import 'package:carconnect_aplication/base/components/my_button.dart';
 import 'package:carconnect_aplication/base/components/my_textfield.dart';
+import 'package:carconnect_aplication/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -24,27 +25,34 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const MyApp()),
+              (Route<dynamic> route) => false,
+            );
+          },
+        ),
+        title: const Text(
+          'Regístrate',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
             child: Column(
               children: [
                 const SizedBox(height: 15),
-                Padding(
-                  padding: const EdgeInsets.only(left: 24),
-                  child: Row(
-                    children: [
-                      Text(
-                        'Regístrate',
-                        style: GoogleFonts.inter(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.only(left: 24),
                   child: Row(
@@ -78,13 +86,15 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 10),
 
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        'Arrendador',
-                        style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold, fontSize: 18),
+                    const SizedBox(
+                        width: 20), // Ajusta el valor según sea necesario
+                    Text(
+                      'Arrendador',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
                     ),
                     Radio<String>(
@@ -98,13 +108,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                     ),
                     const SizedBox(width: 20),
-                    Expanded(
-                      child: Text(
-                        'Arrendatario',
-                        style: GoogleFonts.inter(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
+                    Text(
+                      'Arrendatario',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
                     ),
                     Radio<String>(
@@ -262,7 +270,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF006FFD)), // Cambia el color aquí
+                                color:
+                                    Color(0xFF006FFD)), // Cambia el color aquí
                           ),
                           TextSpan(
                             text: ' y la ',
@@ -273,7 +282,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF006FFD)), // Cambia el color aquí
+                                color:
+                                    Color(0xFF006FFD)), // Cambia el color aquí
                           ),
                         ])),
                       ),

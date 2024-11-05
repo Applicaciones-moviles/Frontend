@@ -1,3 +1,4 @@
+import 'package:carconnect_aplication/base/screens/registercar.dart';
 import 'package:flutter/material.dart';
 
 Widget homeCar() {
@@ -122,7 +123,10 @@ class MyCarsScreen extends StatelessWidget {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              // Implement navigation or other functionality here
+                Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Registercar()),
+              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF006FFD),

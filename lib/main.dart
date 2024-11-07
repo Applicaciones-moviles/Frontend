@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
-      home: const Welcome(),
+      home: HomeClient(),
       routes: {
         //"/":(context)=> const Home(),
         "/login": (context) => LoginPage(),

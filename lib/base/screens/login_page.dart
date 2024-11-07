@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:carconnect_aplication/base/screens/home-car.dart';
 import 'package:carconnect_aplication/base/screens/home-client.dart';
 import 'package:carconnect_aplication/base/screens/register_page.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -66,17 +67,49 @@ class _LoginPageState extends State<LoginPage> {
         print("Token guardado: $storedToken");
         print("Id del usuario es: $storedId");
 
+        await _getUserTypeAndNavigate(userId, token);
 
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => HomeClient())
-        );
       } else {
         final responseBody = json.decode(response.body);
         showError(responseBody['message'] ?? 'Error desconocido');
       }
     } catch (e) {
       showError('Error de conexión: $e');
+    }
+  }
+
+  Future<void> _getUserTypeAndNavigate(int userId, String token) async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/users/$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseBody = json.decode(response.body);
+        final roles = List<String>.from(responseBody['roles']);
+
+        if (roles.contains('ROLE_LESSOR')) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        } else if (roles.contains('ROLE_TENANT')) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeClient()),
+          );
+        } else {
+          showError('Rol de usuario no reconocido');
+        }
+      } else {
+        showError('No se pudo obtener los datos del usuario.');
+      }
+    } catch (e) {
+      showError('Error al obtener los datos del usuario: $e');
     }
   }
 

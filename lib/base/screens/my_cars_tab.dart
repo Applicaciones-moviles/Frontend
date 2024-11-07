@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/car.dart';
+import 'package:carconnect_aplication/base/screens/registercar.dart';
+
 
 class MyCarsTab extends StatelessWidget {
   final List<Car> myCars = [
@@ -29,7 +31,11 @@ class MyCarsTab extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Registercar()),);
+            },
             child: Text('Añadir auto'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
           ),

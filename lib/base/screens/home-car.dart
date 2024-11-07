@@ -1,34 +1,28 @@
-import 'package:carconnect_aplication/base/screens/registercar.dart';
 import 'package:flutter/material.dart';
+import 'my_cars_tab.dart';
+import 'rentals_tab.dart';
 
-Widget homeCar() {
-  return MaterialApp(
-    title: 'CarConnect',
-    theme: ThemeData(
-      primarySwatch: Colors.blue,
-      primaryColor: const Color(0xFF006FFD),
-      scaffoldBackgroundColor: Colors.white,
-      appBarTheme: const AppBarTheme(
-        color: Colors.white,
-        elevation: 0,
-      ),
-      tabBarTheme: const TabBarTheme(
-        unselectedLabelColor: Colors.black54,
-        labelColor: Colors.black,
-        indicatorSize: TabBarIndicatorSize.label,
-        indicator: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.black, width: 2),
-          ),
-        ),
-      ),
-    ),
-    home: const HomeScreen(),
-  );
+class HomeCar extends StatefulWidget {
+  const HomeCar({super.key});
+
+  @override
+  State<HomeCar> createState() => _HomeCarState();
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class _HomeCarState extends State<HomeCar> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,17 +31,19 @@ class HomeScreen extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('CarConnect', style: TextStyle(color: Colors.black)),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Alquileres'),
-              Tab(text: 'Mis Autos'),
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: const [
+            Tab(icon: Icon(Icons.car_rental), text: 'Alquileres'),
+            Tab(icon: Icon(Icons.directions_car), text: 'Mis Autos'),
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
+          controller: _tabController,
           children: [
-            RentalsScreen(),
-            MyCarsScreen(),
+            RentalsTab(),
+            MyCarsTab(),
           ],
         ),
         bottomNavigationBar: BottomNavigationBar(
@@ -61,80 +57,9 @@ class HomeScreen extends StatelessWidget {
               label: 'Settings',
             ),
           ],
-          selectedItemColor: Color(0xFF006FFD),
+          selectedItemColor: const Color(0xFF006FFD),
           unselectedItemColor: Colors.grey,
         ),
-      ),
-    );
-  }
-}
-
-class RentalsScreen extends StatelessWidget {
-  const RentalsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const <Widget>[
-          Icon(Icons.directions_car, size: 100, color: Colors.blue),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 32),
-            child: Text(
-              'Aún no cuentas con solicitudes de alquiler para tu vehículo',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Colors.black,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class MyCarsScreen extends StatelessWidget {
-  const MyCarsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Icon(Icons.car_rental, size: 100, color: Colors.pink),
-          const Text(
-            'Aún no cuentas con un auto alquilado',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Explora nuestro catálogo y escoge tu opción deseada.',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-                Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Registercar()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF006FFD),
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Añadir auto'),
-          )
-        ],
       ),
     );
   }

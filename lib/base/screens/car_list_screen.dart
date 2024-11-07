@@ -7,13 +7,19 @@ class CarListScreen extends StatefulWidget {
   _CarListScreenState createState() => _CarListScreenState();
 }
 
-class _CarListScreenState extends State<CarListScreen> {
-  int _selectedIndex = 0;
+class _CarListScreenState extends State<CarListScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -21,21 +27,20 @@ class _CarListScreenState extends State<CarListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('CarConnect'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            Tab(icon: Icon(Icons.car_rental), text: 'Alquileres'),
+            Tab(icon: Icon(Icons.directions_car), text: 'Mis Autos'),
+          ],
+        ),
       ),
-      body: _selectedIndex == 0 ? RentalsTab() : MyCarsTab(),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.car_rental),
-            label: 'Alquileres',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.directions_car),
-            label: 'Mis Autos',
-          ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          RentalsTab(),
+          MyCarsTab(),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
       ),
     );
   }

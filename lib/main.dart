@@ -2,6 +2,7 @@ import 'package:carconnect_aplication/base/screens/cart.dart';
 import 'package:carconnect_aplication/base/screens/catalogue.dart';
 import 'package:carconnect_aplication/base/screens/login_page.dart';
 import 'package:carconnect_aplication/base/screens/payment_card.dart';
+import 'package:carconnect_aplication/base/screens/product_page.dart';
 import 'package:carconnect_aplication/base/screens/register_page.dart';
 import 'package:carconnect_aplication/base/screens/settings.dart';
 import 'package:carconnect_aplication/base/screens/welcome.dart';

@@ -47,6 +47,11 @@ dependencies:
   borders: ^0.3.2
   flutter_floating_bottom_bar: ^1.2.1+1
   table_calendar: ^3.0.0
+  super_bullet_list: ^0.0.3
+  bulleted_list: ^0.0.1+0.1a
+  jwt_decoder: ^2.0.1
+  dart_jsonwebtoken: ^2.8.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,6 +1,7 @@
 import 'package:carconnect_aplication/base/screens/faq.dart';
 import 'package:carconnect_aplication/base/screens/login_page.dart';
 import 'package:carconnect_aplication/base/screens/terms.dart';
+import 'package:carconnect_aplication/base/screens/home-client.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -11,16 +12,29 @@ class Settings extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Settings"),
+        title: const Text("Configuración"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // Redirigir al HomeClient
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeClient()),
+            );
+          },
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
       body: Center(
         child: Column(
           children: [
             CircleAvatar(
-                radius: 60,
-                child: Image.asset(
-                  'assets/images/car.jpg',
-                )),
+              radius: 60,
+              child: Image.asset(
+                'assets/images/car.jpg',
+              ),
+            ),
             const SizedBox(
               height: 13,
             ),
@@ -82,7 +96,7 @@ class Settings extends StatelessWidget {
             ),
             InkWell(
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => LoginPage()),
                 );

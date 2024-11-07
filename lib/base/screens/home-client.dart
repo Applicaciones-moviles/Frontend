@@ -2,6 +2,7 @@ import 'package:carconnect_aplication/base/screens/catalogue.dart';
 import 'package:carconnect_aplication/base/screens/favorite-car-detail.dart';
 import 'package:carconnect_aplication/base/screens/cardescription.dart';
 import 'package:carconnect_aplication/base/screens/profile.dart'; // Importar el perfil correcto
+import 'package:carconnect_aplication/base/screens/settings.dart'; // Importar configuración
 import 'package:flutter/material.dart';
 
 class HomeClient extends StatefulWidget {
@@ -16,9 +17,9 @@ class _HomeClientState extends State<HomeClient> {
 
   // Definir las páginas para navegar
   static const List<Widget> _pages = <Widget>[
-    ProfileScreen(), // Pantalla de Perfil correcta
+    ProfileScreen(), // Pantalla de Perfil
     HomeClientMain(), // Pantalla de Inicio
-    SettingsScreen(), // Pantalla de Configuración
+    Settings(), // Pantalla de Configuración desde settings.dart
   ];
 
   void _onItemTapped(int index) {
@@ -32,19 +33,21 @@ class _HomeClientState extends State<HomeClient> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(
+        appBar: _selectedIndex == 1
+            ? AppBar(
           title: const Text('CarConnect', style: TextStyle(color: Colors.black)),
           backgroundColor: Colors.white,
           elevation: 0,
-          bottom: _selectedIndex == 1
-              ? const TabBar(
+          centerTitle: true,
+          automaticallyImplyLeading: false, // Eliminar el botón de "Back"
+          bottom: const TabBar(
             tabs: [
               Tab(text: 'Alquilar Autos'),
               Tab(text: 'Autos Favoritos'),
             ],
-          )
-              : null,
-        ),
+          ),
+        )
+            : null,
         body: _selectedIndex == 1
             ? const HomeClientMain() // Cuando se está en la vista principal de HomeClient
             : _pages[_selectedIndex],
@@ -196,27 +199,6 @@ class FavoriteCarsScreen extends StatelessWidget {
           },
         ),
       ],
-    );
-  }
-}
-
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Configuración', style: TextStyle(color: Colors.black)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: const Center(
-        child: Text(
-          'Configuración',
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
     );
   }
 }

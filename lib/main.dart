@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
-      home: const Welcome(),
+      home: const HomeClient(),
       routes: {
         //"/":(context)=> const Home(),
         "/login": (context) => LoginPage(),
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       //home: const Cart(),
 
       // home: Registercar(),
-      
+
       //home: LoginPage(),
 
       //home: homeCar(),

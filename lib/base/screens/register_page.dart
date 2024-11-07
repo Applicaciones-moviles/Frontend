@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:carconnect_aplication/base/components/my_button.dart';
 import 'package:carconnect_aplication/base/components/my_textfield.dart';
-import 'package:carconnect_aplication/main.dart';
+import 'package:carconnect_aplication/base/screens/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -19,7 +21,87 @@ class _RegisterPageState extends State<RegisterPage> {
   final passwordController = TextEditingController();
 
   String? selectedProfile;
-  bool isTermsAccepted = false; // Variable para los términos
+  bool isTermsAccepted = false;
+
+  static const String registerEndpoint = 'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/authentication/sign-up';
+
+  Future<void> registerUser() async {
+    final username = userController.text;
+    final email = emailController.text;
+    final dni = dniController.text;
+    final cellphone = phoneController.text;
+    final password = passwordController.text;
+
+    if (username.isEmpty || email.isEmpty || dni.isEmpty || cellphone.isEmpty || password.isEmpty) {
+      showError('Por favor, completa todos los campos.');
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      showError('Por favor, ingresa un correo electrónico válido.');
+      return;
+    }
+
+    if (!isValidPhoneNumber(cellphone)) {
+      showError('Por favor, ingresa un número de teléfono válido.');
+      return;
+    }
+
+    if (!isTermsAccepted) {
+      showError('Debes aceptar los términos y condiciones.');
+      return;
+    }
+
+    final Map<String, dynamic> data = {
+      "username": username,
+      "dni": dni,
+      "email": email,
+      "cellphone": cellphone,
+      "password": password,
+      "roles": [selectedProfile == 'Arrendador' ? 'ROLE_LESSOR' : 'ROLE_TENANT'],
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(registerEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      );
+
+      print('Respuesta del servidor: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        showSuccess('Registro exitoso');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        final responseBody = json.decode(response.body);
+        showError(responseBody['message'] ?? 'Error desconocido');
+      }
+    } catch (e) {
+      showError('Error de conexión: $e');
+    }
+  }
+
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void showSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  bool isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    return emailRegex.hasMatch(email);
+  }
+
+  bool isValidPhoneNumber(String phone) {
+    final phoneRegex = RegExp(r'^[0-9]{9,15}$');
+    return phoneRegex.hasMatch(phone);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +113,7 @@ class _RegisterPageState extends State<RegisterPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const MyApp()),
-              (Route<dynamic> route) => false,
-            );
+            Navigator.pop(context);
           },
         ),
         title: const Text(
@@ -88,8 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const SizedBox(
-                        width: 20), // Ajusta el valor según sea necesario
+                    const SizedBox(width: 20),
                     Text(
                       'Arrendador',
                       style: GoogleFonts.inter(
@@ -99,7 +176,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     Radio<String>(
                       value: 'Arrendador',
-                      activeColor: Color(0xFF006FFD),
+                      activeColor: const Color(0xFF006FFD),
                       groupValue: selectedProfile,
                       onChanged: (value) {
                         setState(() {
@@ -117,7 +194,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     Radio<String>(
                       value: 'Arrendatario',
-                      activeColor: Color(0xFF006FFD),
+                      activeColor: const Color(0xFF006FFD),
                       groupValue: selectedProfile,
                       onChanged: (value) {
                         setState(() {
@@ -127,8 +204,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20),
+
+                // Nombre
                 Padding(
                   padding: const EdgeInsets.only(left: 24),
                   child: Row(
@@ -150,7 +228,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Ingresa tu nombre completo',
                   obscureText: false,
                 ),
+
                 const SizedBox(height: 20),
+
+                // Correo electrónico
                 Padding(
                   padding: const EdgeInsets.only(left: 24),
                   child: Row(
@@ -172,7 +253,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'name@email.com',
                   obscureText: false,
                 ),
+
                 const SizedBox(height: 20),
+
+                // DNI
                 Padding(
                   padding: const EdgeInsets.only(left: 24),
                   child: Row(
@@ -194,7 +278,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Ingresa tu DNI',
                   obscureText: false,
                 ),
+
                 const SizedBox(height: 20),
+
+                // Celular
                 Padding(
                   padding: const EdgeInsets.only(left: 24),
                   child: Row(
@@ -216,7 +303,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   hintText: 'Ingresa tu celular personal',
                   obscureText: false,
                 ),
+
                 const SizedBox(height: 20),
+
+                // Contraseña
                 Padding(
                   padding: const EdgeInsets.only(left: 24),
                   child: Row(
@@ -242,7 +332,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 15),
 
-                // Checkbox para términos y condiciones
+                // Términos y condiciones
                 Padding(
                   padding: const EdgeInsets.only(left: 12),
                   child: Row(
@@ -251,7 +341,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         scale: 1.5,
                         child: Checkbox(
                           value: isTermsAccepted,
-                          activeColor: Color(0xFF006FFD),
+                          activeColor: const Color(0xFF006FFD),
                           onChanged: (value) {
                             setState(() {
                               isTermsAccepted = value ?? false;
@@ -271,7 +361,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color:
-                                    Color(0xFF006FFD)), // Cambia el color aquí
+                                Color(0xFF006FFD)),
                           ),
                           TextSpan(
                             text: ' y la ',
@@ -283,7 +373,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color:
-                                    Color(0xFF006FFD)), // Cambia el color aquí
+                                Color(0xFF006FFD)),
                           ),
                         ])),
                       ),
@@ -293,9 +383,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 const SizedBox(height: 15),
 
+                // Botón de registrar
                 MyButton(
                     text: "Crear Perfil",
-                    onPressed: isTermsAccepted ? () {} : null)
+                    onPressed: isTermsAccepted ? registerUser : null)
               ],
             ),
           ),

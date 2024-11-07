@@ -19,6 +19,26 @@ class _PaymentUserState extends State<PaymentUser> {
   bool _isBillingAddressSameAsShipping = false;
   Map<String, String>? cardDetails;
 
+  void _showConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Tu alquiler ha sido registrado'),
+          content: Text('Gracias por confiar en nosotros'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Aceptar'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,8 +215,30 @@ class _PaymentUserState extends State<PaymentUser> {
                 ),
 
                 // Botón de pago
-                MyButton(
-                    text: "Pagar", onPressed: isTermsAccepted ? () {} : null)
+                 const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF006FFD), 
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), 
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        vertical: 20,horizontal:140), 
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context, {
+                      _showConfirmationDialog(),
+                    });
+                  },
+                  child: Text(
+                    'Pagar',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

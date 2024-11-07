@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomInput extends StatelessWidget {
   final String label;
 
-  CustomInput({required this.label});
+  const CustomInput({super.key, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,7 @@ class CustomInput extends StatelessWidget {
       child: TextField(
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
       ),
     );

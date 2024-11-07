@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.45"
+  adaptive_number:
+    dependency: transitive
+    description:
+      name: adaptive_number
+      sha256: "3a567544e9b5c9c803006f51140ad544aedc79604fd4f3f2c1380003f97c1d77"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   async:
     dependency: transitive
     description:
@@ -33,6 +41,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.2"
+  bulleted_list:
+    dependency: "direct main"
+    description:
+      name: bulleted_list
+      sha256: "35ddc56b7fd9977ae3932264f5b722e702748a044aa16f0a7109bf7e4886fedb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1+0.1a"
   characters:
     dependency: transitive
     description:
@@ -81,6 +97,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
+  convert:
+    dependency: transitive
+    description:
+      name: convert
+      sha256: b30acd5944035672bc15c6b7a8b47d773e41e2f17de064350988c5d02adb1c68
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.2"
   cross_file:
     dependency: transitive
     description:
@@ -105,6 +129,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
+  dart_jsonwebtoken:
+    dependency: "direct main"
+    description:
+      name: dart_jsonwebtoken
+      sha256: adf073720e491d64fa599942615b919915710af2d809b2798146f9b7c4330f3f
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.14.1"
+  ed25519_edwards:
+    dependency: transitive
+    description:
+      name: ed25519_edwards
+      sha256: "6ce0112d131327ec6d42beede1e5dfd526069b18ad45dcf654f15074ad9276cd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.1"
   fake_async:
     dependency: transitive
     description:
@@ -225,6 +265,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.18.1"
+  fixnum:
+    dependency: transitive
+    description:
+      name: fixnum
+      sha256: b6dc7065e46c974bc7c5f143080a6764ec7a4be6da1285ececdc37be96de53be
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.1"
+  flextras:
+    dependency: transitive
+    description:
+      name: flextras
+      sha256: e73b5c86dd9419569d2a48db470059b41b496012513e4e1bdc56ba2c661048d9
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   fluentui_icons:
     dependency: "direct main"
     description:
@@ -320,6 +376,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  gap:
+    dependency: transitive
+    description:
+      name: gap
+      sha256: f19387d4e32f849394758b91377f9153a1b41d79513ef7668c088c77dbc6955d
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
   google_fonts:
     dependency: "direct main"
     description:
@@ -424,6 +488,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.7"
+  jwt_decoder:
+    dependency: "direct main"
+    description:
+      name: jwt_decoder
+      sha256: "54774aebf83f2923b99e6416b4ea915d47af3bde56884eb622de85feabbc559f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   leak_tracker:
     dependency: transitive
     description:
@@ -560,6 +632,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  pointycastle:
+    dependency: transitive
+    description:
+      name: pointycastle
+      sha256: "4be0097fcf3fd3e8449e53730c631200ebc7b88016acecab2b0da2f0149222fe"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.9.1"
   simple_gesture_detector:
     dependency: transitive
     description:
@@ -605,6 +685,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  super_bullet_list:
+    dependency: "direct main"
+    description:
+      name: super_bullet_list
+      sha256: ffe4514582c4e5a0d58b16e2131b35c25f159629488670b655255c03960e0ee5
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   table_calendar:
     dependency: "direct main"
     description:

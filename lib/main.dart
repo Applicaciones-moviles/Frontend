@@ -3,6 +3,7 @@ import 'package:carconnect_aplication/base/screens/catalogue.dart';
 import 'package:carconnect_aplication/base/screens/login_page.dart';
 import 'package:carconnect_aplication/base/screens/payment_card.dart';
 import 'package:carconnect_aplication/base/screens/register_page.dart';
+import 'package:carconnect_aplication/base/screens/settings.dart';
 import 'package:carconnect_aplication/base/screens/welcome.dart';
 import 'package:carconnect_aplication/base/screens/payment_user.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
-      home: HomeClient(),
+      home: Settings(),
       routes: {
         //"/":(context)=> const Home(),
         "/login": (context) => LoginPage(),

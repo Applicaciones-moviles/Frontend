@@ -15,7 +15,7 @@ class Cart extends StatelessWidget {
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
-          },          
+          },
           icon: const Icon(FluentSystemIcons.ic_fluent_arrow_left_filled),
           color: const Color.fromARGB(255, 96, 123, 243),
         ),
@@ -23,13 +23,15 @@ class Cart extends StatelessWidget {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 19.0),
+            padding:
+            const EdgeInsets.symmetric(vertical: 10.0, horizontal: 19.0),
             child: Column(
               children: [
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color.fromARGB(38, 7, 7, 7)),
+                    border:
+                    Border.all(color: const Color.fromARGB(38, 7, 7, 7)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -47,7 +49,8 @@ class Cart extends StatelessWidget {
                         ),
                         const SizedBox(width: 11),
                         ConstrainedBox(
-                          constraints: BoxConstraints.tight(const Size(161, 110)),
+                          constraints:
+                          BoxConstraints.tight(const Size(161, 110)),
                           child: const Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -64,7 +67,8 @@ class Cart extends StatelessWidget {
                               ),
                               SizedBox(height: 10),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     "Precio Total",
@@ -72,7 +76,8 @@ class Cart extends StatelessWidget {
                                   ),
                                   Text(
                                     "S/.120.00",
-                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                    style:
+                                    TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                 ],
                               ),
@@ -83,17 +88,17 @@ class Cart extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 70), 
+                const SizedBox(height: 70),
               ],
             ),
           ),
-
           Positioned(
-            bottom: 0, 
+            bottom: 0,
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 19.0),
+              padding:
+              const EdgeInsets.symmetric(vertical: 20, horizontal: 19.0),
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -116,27 +121,31 @@ class Cart extends StatelessWidget {
                     children: [
                       Text(
                         "Total",
-                        style: TextStyle(fontSize: 15.0, color: Color.fromARGB(143, 0, 0, 0)),
+                        style: TextStyle(
+                            fontSize: 15.0,
+                            color: Color.fromARGB(143, 0, 0, 0)),
                       ),
                       Text(
                         "S/.120.00",
-                        style: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                            fontSize: 15.0, fontWeight: FontWeight.w700),
                       ),
                     ],
                   ),
                   const SizedBox(height: 15),
-
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 13),
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xff006FFD),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Center(
-                      child: Text(
-                        "Continuar",
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+                    child: Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xff006FFD),
+                        ),
+                        onPressed: () => _dialogBuilder(context),
+                        child: const Text(
+                          "Continuar",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                       ),
                     ),
                   ),
@@ -147,5 +156,44 @@ class Cart extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _dialogBuilder(BuildContext context) {
+    return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            icon: const Icon(
+              Icons.warning_rounded,
+              color: Colors.blue,
+              size: 30,
+            ),
+            title: const Text('Adjunta tu Firma digital'),
+            content: const Text(
+                'Es obligatorio completar este paso para proceder con la reserva.'),
+            actions: <Widget>[
+              ElevatedButton(
+                style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Color(0xff1890ff))),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text(
+                  'Cancelar',
+                  style: TextStyle(color: Color(0xff1890ff)),
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff1890ff)),
+                onPressed: () {},
+                child: const Text(
+                  'Completar Firma',
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
+            ],
+          );
+        });
   }
 }

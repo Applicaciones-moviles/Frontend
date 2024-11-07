@@ -23,10 +23,8 @@ class _RegisterPageState extends State<RegisterPage> {
   String? selectedProfile;
   bool isTermsAccepted = false;
 
-  // URL del endpoint de registro (ajusta esta URL a tu servidor)
   static const String registerEndpoint = 'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/authentication/sign-up';
 
-  // Función para registrar al usuario
   Future<void> registerUser() async {
     final username = userController.text;
     final email = emailController.text;
@@ -34,31 +32,26 @@ class _RegisterPageState extends State<RegisterPage> {
     final cellphone = phoneController.text;
     final password = passwordController.text;
 
-    // Validación de campos vacíos
     if (username.isEmpty || email.isEmpty || dni.isEmpty || cellphone.isEmpty || password.isEmpty) {
       showError('Por favor, completa todos los campos.');
       return;
     }
 
-    // Validación de correo electrónico
     if (!isValidEmail(email)) {
       showError('Por favor, ingresa un correo electrónico válido.');
       return;
     }
 
-    // Validación de número de teléfono
     if (!isValidPhoneNumber(cellphone)) {
       showError('Por favor, ingresa un número de teléfono válido.');
       return;
     }
 
-    // Verificar si los términos y condiciones han sido aceptados
     if (!isTermsAccepted) {
       showError('Debes aceptar los términos y condiciones.');
       return;
     }
 
-    // Preparar los datos en formato JSON
     final Map<String, dynamic> data = {
       "username": username,
       "dni": dni,
@@ -68,7 +61,6 @@ class _RegisterPageState extends State<RegisterPage> {
       "roles": [selectedProfile == 'Arrendador' ? 'ROLE_LESSOR' : 'ROLE_TENANT'],
     };
 
-    // Realizar la solicitud HTTP POST
     try {
       final response = await http.post(
         Uri.parse(registerEndpoint),
@@ -79,43 +71,35 @@ class _RegisterPageState extends State<RegisterPage> {
       print('Respuesta del servidor: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Registro exitoso
         showSuccess('Registro exitoso');
-        // Redirigir al login o alguna otra página (por ejemplo, LoginPage)
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
         );
       } else {
-        // Si la respuesta del servidor es un error
         final responseBody = json.decode(response.body);
         showError(responseBody['message'] ?? 'Error desconocido');
       }
     } catch (e) {
-      // Error de conexión o cualquier otro error
       showError('Error de conexión: $e');
     }
   }
 
-  // Función para mostrar un error usando un SnackBar
   void showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  // Función para mostrar un mensaje de éxito usando un SnackBar
   void showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  // Validación de correo electrónico
   bool isValidEmail(String email) {
     final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     return emailRegex.hasMatch(email);
   }
 
-  // Validación de número de teléfono
   bool isValidPhoneNumber(String phone) {
-    final phoneRegex = RegExp(r'^[0-9]{9,15}$'); // Ajusta la longitud según sea necesario
+    final phoneRegex = RegExp(r'^[0-9]{9,15}$');
     return phoneRegex.hasMatch(phone);
   }
 
@@ -129,7 +113,7 @@ class _RegisterPageState extends State<RegisterPage> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context); // Regresar a la pantalla anterior
+            Navigator.pop(context);
           },
         ),
         title: const Text(
@@ -377,7 +361,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color:
-                                Color(0xFF006FFD)), // Cambia el color aquí
+                                Color(0xFF006FFD)),
                           ),
                           TextSpan(
                             text: ' y la ',
@@ -389,7 +373,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color:
-                                Color(0xFF006FFD)), // Cambia el color aquí
+                                Color(0xFF006FFD)),
                           ),
                         ])),
                       ),

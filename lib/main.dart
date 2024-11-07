@@ -26,15 +26,13 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         primarySwatch: Colors.blue,
       ),
-      //home: const Welcome(),
+      home: const Welcome(),
       routes: {
         //"/":(context)=> const Home(),
         "/login": (context) => LoginPage(),
         "/welcome": (context) => const Welcome(),
         "/register": (context) => RegisterPage(),
       },
-
-      home: PaymentUser(),
       
     );
   }

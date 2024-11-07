@@ -154,8 +154,15 @@ class _PaymentCardState extends State<PaymentCard> {
                   obscureText: false,
                 ),
                 const SizedBox(height: 20),
-                MyButton(
-                  text: "Añadir Tarjeta",
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF006FFD), 
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), 
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        vertical: 20,horizontal:140), 
+                  ),
                   onPressed: () {
                     Navigator.pop(context, {
                       'cardNumber': numberCardController.text,
@@ -164,6 +171,14 @@ class _PaymentCardState extends State<PaymentCard> {
                       'cvv': cvvController.text,
                     });
                   },
+                  child: Text(
+                    'Añadir Tarjeta',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
                 ),
               ],
             ),

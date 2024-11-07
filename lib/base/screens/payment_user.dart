@@ -1,6 +1,7 @@
 import 'package:carconnect_aplication/base/components/my_button.dart';
 import 'package:carconnect_aplication/base/components/my_textfield.dart';
 import 'package:carconnect_aplication/base/screens/payment_card.dart';
+import 'package:carconnect_aplication/base/screens/home-client.dart'; // Importar HomeClient
 import 'package:carconnect_aplication/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,13 +25,17 @@ class _PaymentUserState extends State<PaymentUser> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Tu alquiler ha sido registrado'),
-          content: Text('Gracias por confiar en nosotros'),
+          title: const Text('Tu alquiler ha sido registrado'),
+          content: const Text('Gracias por confiar en nosotros'),
           actions: <Widget>[
             TextButton(
-              child: Text('Aceptar'),
+              child: const Text('Aceptar'),
               onPressed: () {
                 Navigator.of(context).pop(); // Cierra el diálogo
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomeClient()), // Redirige al HomeClient
+                );
               },
             ),
           ],
@@ -52,7 +57,7 @@ class _PaymentUserState extends State<PaymentUser> {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => const MyApp()),
-              (Route<dynamic> route) => false,
+                  (Route<dynamic> route) => false,
             );
           },
         ),
@@ -113,7 +118,7 @@ class _PaymentUserState extends State<PaymentUser> {
                             width: 30), // Añade espacio a la izquierda
                         Radio<String>(
                           value: 'Credit Card',
-                          activeColor: Color(0xFF006FFD),
+                          activeColor: const Color(0xFF006FFD),
                           groupValue: selectedPaymentUser,
                           onChanged: (value) {
                             setState(() {
@@ -135,7 +140,7 @@ class _PaymentUserState extends State<PaymentUser> {
                       Padding(
                         padding: const EdgeInsets.only(left: 50.0),
                         child: ListTile(
-                          title: Text(
+                          title: const Text(
                             "+ Agregar nueva tarjeta",
                             style: TextStyle(color: Colors.blue),
                           ),
@@ -168,7 +173,7 @@ class _PaymentUserState extends State<PaymentUser> {
                       ],
                       const SizedBox(height: 10),
                       ListTile(
-                        title: Text(
+                        title: const Text(
                             "Mi dirección de facturación es la misma que mi dirección de envío"),
                         leading: Checkbox(
                           value: _isBillingAddressSameAsShipping,
@@ -193,7 +198,7 @@ class _PaymentUserState extends State<PaymentUser> {
                         children: [
                           Radio<String>(
                             value: 'Apple Pay',
-                            activeColor: Color(0xFF006FFD),
+                            activeColor: const Color(0xFF006FFD),
                             groupValue: selectedPaymentUser,
                             onChanged: (value) {
                               setState(() {
@@ -215,22 +220,20 @@ class _PaymentUserState extends State<PaymentUser> {
                 ),
 
                 // Botón de pago
-                 const SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF006FFD), 
+                    backgroundColor: const Color(0xFF006FFD),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), 
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    padding: EdgeInsets.symmetric(
-                        vertical: 20,horizontal:140), 
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20, horizontal: 140),
                   ),
                   onPressed: () {
-                    Navigator.pop(context, {
-                      _showConfirmationDialog(),
-                    });
+                    _showConfirmationDialog(); // Llama al método para mostrar el diálogo
                   },
-                  child: Text(
+                  child: const Text(
                     'Pagar',
                     style: TextStyle(
                       color: Colors.white,

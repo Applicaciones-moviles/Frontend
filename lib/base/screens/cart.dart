@@ -1,3 +1,4 @@
+import 'package:carconnect_aplication/base/screens/product_page.dart';
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
 
@@ -186,7 +187,12 @@ class Cart extends StatelessWidget {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xff1890ff)),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProductPage()),
+                  );
+                },
                 child: const Text(
                   'Completar Firma',
                   style: TextStyle(color: Colors.white),

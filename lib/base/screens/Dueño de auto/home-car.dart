@@ -1,7 +1,8 @@
-import 'package:carconnect_aplication/base/screens/profile.dart';
-import 'package:carconnect_aplication/base/screens/settings.dart';
+import 'package:carconnect_aplication/base/screens/Due%C3%B1o%20de%20auto/registercar.dart';
+import 'package:carconnect_aplication/base/screens/shared/profile.dart';
+import 'package:carconnect_aplication/base/screens/shared/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:carconnect_aplication/base/screens/catalogue.dart';
+import 'package:carconnect_aplication/base/screens/Cliente/catalogue.dart';
 
 class HomeCar extends StatefulWidget {
   const HomeCar({super.key});
@@ -122,29 +123,70 @@ class MyCarsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      children: <Widget>[
-        CarCard(
-          imageUrl: 'https://example.com/car_image.png',
-          title: 'Kia Sportage 2021',
-          description: 'Negro / TRS 998',
-          price: 'S/. 120.00',
-          onPressedDetails: () {
-            // Aquí puedes añadir la lógica para ver los detalles del coche.
-          },
-        ),
-        const SizedBox(height: 16),
-        CarCard(
-          imageUrl: 'https://example.com/car_image2.png',
-          title: 'Toyota Corolla 2022',
-          description: 'Blanco / ABC 123',
-          price: 'S/. 150.00',
-          onPressedDetails: () {
-            // Aquí puedes añadir la lógica para ver los detalles del coche.
-          },
-        ),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          ListView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16.0),
+            children: <Widget>[
+              CarCard(
+                imageUrl: 'https://example.com/car_image.png',
+                title: 'Kia Sportage 2021',
+                description: 'Negro / TRS 998',
+                price: 'S/. 120.00',
+                onPressedDetails: () {
+                  // Aquí puedes añadir la lógica para ver los detalles del coche.
+                },
+              ),
+              const SizedBox(height: 16),
+              CarCard(
+                imageUrl: 'https://example.com/car_image2.png',
+                title: 'Toyota Corolla 2022',
+                description: 'Blanco / ABC 123',
+                price: 'S/. 150.00',
+                onPressedDetails: () {
+                  // Aquí puedes añadir la lógica para ver los detalles del coche.
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+          const SizedBox(height: 30),
+          const Text(
+            'Añade más autos para ser alquilados',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Registercar()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+            ),
+            child: const Text(
+              'Añadir auto',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+        ],
+      ),
     );
   }
 }

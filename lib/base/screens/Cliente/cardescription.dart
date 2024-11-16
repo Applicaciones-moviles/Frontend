@@ -1,4 +1,4 @@
-import 'package:carconnect_aplication/base/screens/cart.dart';
+import 'package:carconnect_aplication/base/screens/Cliente/cart.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 

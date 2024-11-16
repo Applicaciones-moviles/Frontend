@@ -1,8 +1,8 @@
-import 'package:carconnect_aplication/base/screens/catalogue.dart';
-import 'package:carconnect_aplication/base/screens/favorite-car-detail.dart';
-import 'package:carconnect_aplication/base/screens/cardescription.dart';
-import 'package:carconnect_aplication/base/screens/profile.dart'; // Importar el perfil correcto
-import 'package:carconnect_aplication/base/screens/settings.dart'; // Importar configuración
+import 'package:carconnect_aplication/base/screens/Cliente/catalogue.dart';
+import 'package:carconnect_aplication/base/screens/Cliente/favorite-car-detail.dart';
+import 'package:carconnect_aplication/base/screens/Cliente/cardescription.dart';
+import 'package:carconnect_aplication/base/screens/shared/profile.dart'; // Importar el perfil correcto
+import 'package:carconnect_aplication/base/screens/shared/settings.dart'; // Importar configuración
 import 'package:flutter/material.dart';
 
 class HomeClient extends StatefulWidget {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/car.dart';
+import '../../models/car.dart';
 
 class RentalsTab extends StatelessWidget {
   final List<Car> rentalCars = [

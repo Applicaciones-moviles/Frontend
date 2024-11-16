@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:carconnect_aplication/base/screens/home-car.dart';
-import 'package:carconnect_aplication/base/screens/home-client.dart';
-import 'package:carconnect_aplication/base/screens/register_page.dart';
+import 'package:carconnect_aplication/base/screens/Due%C3%B1o%20de%20auto/home-car.dart';
+import 'package:carconnect_aplication/base/screens/Cliente/home-client.dart';
+import 'package:carconnect_aplication/base/screens/shared/register_page.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:carconnect_aplication/base/components/my_button.dart';
 import 'package:carconnect_aplication/base/components/my_textfield.dart';

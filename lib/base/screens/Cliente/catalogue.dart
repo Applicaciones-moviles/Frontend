@@ -1,4 +1,4 @@
-import 'package:carconnect_aplication/base/screens/cardescription.dart';
+import 'package:carconnect_aplication/base/screens/Cliente/cardescription.dart';
 import 'package:carconnect_aplication/base/widgets/car_catalogue.dart';
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';

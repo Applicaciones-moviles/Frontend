@@ -1,7 +1,7 @@
 import 'package:carconnect_aplication/base/components/my_button.dart';
 import 'package:carconnect_aplication/base/components/my_textfield.dart';
-import 'package:carconnect_aplication/base/screens/payment_card.dart';
-import 'package:carconnect_aplication/base/screens/home-client.dart'; // Importar HomeClient
+import 'package:carconnect_aplication/base/screens/Cliente/payment_card.dart';
+import 'package:carconnect_aplication/base/screens/Cliente/home-client.dart'; // Importar HomeClient
 import 'package:carconnect_aplication/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

@@ -1,4 +1,4 @@
-import 'package:carconnect_aplication/base/screens/payment_user.dart';
+import 'package:carconnect_aplication/base/screens/Cliente/payment_user.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:carconnect_aplication/base/components/my_button.dart';

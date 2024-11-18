@@ -1,4 +1,4 @@
-import 'package:carconnect_aplication/base/screens/shared/product_page.dart';
+import 'package:carconnect_aplication/base/screens/Cliente/product_page.dart';
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
 

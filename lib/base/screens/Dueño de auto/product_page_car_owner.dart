@@ -1,16 +1,17 @@
 import 'package:carconnect_aplication/base/screens/Cliente/payment_user.dart';
+import 'package:carconnect_aplication/base/screens/Due%C3%B1o%20de%20auto/home-car.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:carconnect_aplication/base/components/my_button.dart';
 
-class ProductPage extends StatefulWidget {
-  const ProductPage({super.key});
+class ProductPageCarOwner extends StatefulWidget {
+  const ProductPageCarOwner({super.key});
 
   @override
   _ProductPageState createState() => _ProductPageState();
 }
 
-class _ProductPageState extends State<ProductPage> {
+class _ProductPageState extends State<ProductPageCarOwner> {
   String? _fileName;
 
   Future<void> _pickFile() async {
@@ -36,7 +37,7 @@ class _ProductPageState extends State<ProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CarConnect - Contrato de Alquiler'),
+        //title: const Text('CarConnect - Contrato de Alquiler'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -92,7 +93,7 @@ class _ProductPageState extends State<ProductPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => PaymentUser()),
+                      MaterialPageRoute(builder: (context) => HomeCar()),
                     );
                   },
                 ),

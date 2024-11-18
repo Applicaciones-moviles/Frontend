@@ -1,6 +1,7 @@
+import 'package:carconnect_aplication/base/screens/Due%C3%B1o%20de%20auto/product_page_car_owner.dart';
 import 'package:flutter/material.dart';
 
-import '../shared/product_page.dart';
+import '../Cliente/product_page.dart';
 // Importa ProductPage (asegúrate de que esté en el archivo correcto)
 
 class PreviewCar extends StatefulWidget {
@@ -136,7 +137,7 @@ class _PreviewCarState extends State<PreviewCar> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProductPage(), // Redirige a ProductPage
+                      builder: (context) => ProductPageCarOwner(), // Redirige a ProductPage
                     ),
                   );
                 },

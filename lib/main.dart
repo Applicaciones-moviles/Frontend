@@ -2,7 +2,7 @@ import 'package:carconnect_aplication/base/screens/Cliente/cart.dart';
 import 'package:carconnect_aplication/base/screens/Cliente/catalogue.dart';
 import 'package:carconnect_aplication/base/screens/shared/login_page.dart';
 import 'package:carconnect_aplication/base/screens/Cliente/payment_card.dart';
-import 'package:carconnect_aplication/base/screens/shared/product_page.dart';
+import 'package:carconnect_aplication/base/screens/Cliente/product_page.dart';
 import 'package:carconnect_aplication/base/screens/shared/register_page.dart';
 import 'package:carconnect_aplication/base/screens/shared/settings.dart';
 import 'package:carconnect_aplication/base/screens/Cliente/payment_user.dart';

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; // Para permitir la selección de imágenes
+import 'package:image_picker/image_picker.dart'; // For image selection
 import 'dart:io';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,34 +13,58 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool _isPasswordVisible = false;
-  bool _isSaveButtonEnabled = false;
   String? _profileImagePath;
+  String _email = "correo@example.com";
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
 
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _dniController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _emailController.text = 'juan.perez@example.com';
-    _phoneController.text = '987654321';
-    _passwordController.text = 'Jperez';
-
-    // Activar el botón de guardar cuando se modifica algún campo editable
-    _emailController.addListener(_checkForChanges);
-    _phoneController.addListener(_checkForChanges);
-    _passwordController.addListener(_checkForChanges);
+    _fetchUserProfile();
   }
 
-  void _checkForChanges() {
-    setState(() {
-      _isSaveButtonEnabled = _emailController.text != 'juan.perez@example.com' ||
-          _phoneController.text != '987654321' ||
-          _passwordController.text != 'Jperez' ||
-          _profileImagePath != null;
-    });
+  Future<void> _fetchUserProfile() async {
+    try {
+      String? token = await _storage.read(key: 'auth_token');
+      String? userId = await _storage.read(key: 'user_id');
+
+      if (token == null || userId == null) {
+        showError('No se encontró el token de autenticación.');
+        return;
+      }
+
+      final response = await http.get(
+        Uri.parse('https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/users/$userId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = json.decode(response.body);
+        setState(() {
+          _nameController.text = responseBody['username'] ?? "Usuario Desconocido";
+          _email = responseBody['email'] ?? "correo@example.com";
+          _emailController.text = responseBody['email'] ?? "";
+          _phoneController.text = responseBody['cellphone']?.toString() ?? "";
+          _dniController.text = responseBody['dni'] ?? "";
+        });
+      } else {
+        showError('No se pudo obtener los datos del usuario.');
+      }
+    } catch (e) {
+      showError('Error de conexión: $e');
+    }
+  }
+
+  void showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _pickImage() async {
@@ -47,7 +74,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (image != null) {
       setState(() {
         _profileImagePath = image.path;
-        _isSaveButtonEnabled = true; // Activar el botón de guardar cambios
       });
     }
   }
@@ -76,17 +102,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   radius: 50,
                   backgroundColor: Colors.grey,
                   backgroundImage: _profileImagePath != null
-                      ? Image.file(
-                    File(_profileImagePath!),
-                    fit: BoxFit.cover,
-                  ).image
+                      ? Image.file(File(_profileImagePath!), fit: BoxFit.cover).image
                       : const AssetImage('assets/default_profile.png') as ImageProvider,
                   child: _profileImagePath == null
-                      ? const Icon(
-                    Icons.person,
-                    size: 50,
-                    color: Colors.white,
-                  )
+                      ? const Icon(Icons.person, size: 50, color: Colors.white)
                       : null,
                 ),
                 Positioned(
@@ -100,53 +119,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         shape: BoxShape.circle,
                       ),
                       padding: const EdgeInsets.all(4),
-                      child: const Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                      child: const Icon(Icons.edit, color: Colors.white, size: 20),
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            const Text(
-              'Juan Pérez',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Text(
+              _nameController.text,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const Text(
-              '@Jperez',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+            Text(
+              _email,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 20),
-            _buildTextField('Nombre', 'Juan Pérez Sotomayor', enabled: false),
+            _buildTextField('Nombre', _nameController.text,
+                controller: _nameController, enabled: false),
             _buildTextField('Correo electrónico', _emailController.text,
-                controller: _emailController, enabled: true),
-            _buildTextField('DNI', '87654321', enabled: false),
+                controller: _emailController, enabled: false),
+            _buildTextField('DNI', _dniController.text,
+                controller: _dniController, enabled: false),
             _buildTextField('Celular', _phoneController.text,
-                controller: _phoneController, enabled: true),
-            _buildPasswordField(),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _isSaveButtonEnabled
-                  ? () {
-                // Acción al guardar los cambios
-              }
-                  : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF006FFD),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-              ),
-              child: const Text(
-                'Guardar Cambios',
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
+                controller: _phoneController, enabled: false), // Bloqueado
             const SizedBox(height: 20),
           ],
         ),
@@ -170,37 +166,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           filled: true,
           fillColor: enabled ? Colors.white : Colors.grey[200],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextField(
-        controller: _passwordController,
-        obscureText: !_isPasswordVisible,
-        decoration: InputDecoration(
-          labelText: 'Contraseña',
-          hintText: 'Jperez',
-          hintStyle: const TextStyle(color: Colors.grey),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          suffixIcon: IconButton(
-            icon: Icon(
-              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-              color: Colors.grey,
-            ),
-            onPressed: () {
-              setState(() {
-                _isPasswordVisible = !_isPasswordVisible;
-              });
-            },
-          ),
         ),
       ),
     );

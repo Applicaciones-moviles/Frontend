@@ -11,7 +11,7 @@ class Cart extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           "Tu Carrito",
-          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w500),
+          style: TextStyle(fontWeight: FontWeight.w500),
         ),
         leading: IconButton(
           onPressed: () {

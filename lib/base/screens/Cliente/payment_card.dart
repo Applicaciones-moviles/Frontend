@@ -24,15 +24,14 @@ class _PaymentCardState extends State<PaymentCard> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
         leading: TextButton(
-          child: const Text('Cancel', style: TextStyle(color: Colors.blue)),
+          child: const Text('Cancel', style: TextStyle(color: Colors.blue, )),
           onPressed: () {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => const MyApp()),
-              (Route<dynamic> route) => false,
+                  (Route<dynamic> route) => false,
             );
           },
         ),
@@ -56,7 +55,7 @@ class _PaymentCardState extends State<PaymentCard> {
                   child: Row(
                     children: [
                       Text(
-                        'Numero de la Tarjeta',
+                        'Numero de Cuenta',
                         style: GoogleFonts.inter(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -156,12 +155,12 @@ class _PaymentCardState extends State<PaymentCard> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF006FFD), 
+                    backgroundColor: Color(0xFF006FFD),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), 
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     padding: EdgeInsets.symmetric(
-                        vertical: 20,horizontal:140), 
+                        vertical: 20,horizontal:140),
                   ),
                   onPressed: () {
                     Navigator.pop(context, {

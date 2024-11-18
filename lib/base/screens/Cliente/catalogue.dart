@@ -2,6 +2,7 @@ import 'package:carconnect_aplication/base/screens/Cliente/cardescription.dart';
 import 'package:carconnect_aplication/base/widgets/car_catalogue.dart';
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -13,6 +14,7 @@ class Catalogue extends StatefulWidget {
 }
 
 class _CatalogueState extends State<Catalogue> {
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
   List<dynamic> cars = [];
   List<dynamic> filteredCars = [];
   List<String> brandOptions = [];
@@ -21,36 +23,6 @@ class _CatalogueState extends State<Catalogue> {
   String? selectedBrand;
   double minPrice = 0;
   double maxPrice = double.infinity;
-
-  String processImgurUrl(String url) {
-    String id = url.replaceAll('https://imgur.com/', '');
-    if (id.contains('/a/')) {
-      id = id.replaceAll('/a/', '');
-    }
-    id = id.split('/').last;
-    id = id.split('.').first;
-    return 'https://i.imgur.com/$id.jpeg';
-  }
-
-  String processImageUrl(String? imageUrl) {
-    if (imageUrl == null || imageUrl.isEmpty) {
-      return 'assets/carro.png';
-    }
-    String cleanUrl = imageUrl.trim();
-    try {
-      if (cleanUrl.contains('imgur.com')) {
-        return processImgurUrl(cleanUrl);
-      }
-      Uri uri = Uri.parse(cleanUrl);
-      if (!uri.hasScheme) {
-        return 'assets/carro.png';
-      }
-      return cleanUrl;
-    } catch (e) {
-      print('Error processing image URL: $e');
-      return 'assets/carro.png';
-    }
-  }
 
   @override
   void initState() {
@@ -61,8 +33,12 @@ class _CatalogueState extends State<Catalogue> {
   Future<void> fetchCars() async {
     final url = Uri.parse(
         'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/vehicle');
-    const String token =
-        'eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ1c3VhcmlvQGdtYWlsLmNvbSIsImlhdCI6MTczMDk1MjI4OCwiZXhwIjoxNzMxNTU3MDg4fQ.8cX5S2cEzNwQJwAPbeUJksaXiO-oKDVicM7Bfwiit8L50rr7f6anyTB8_XbEQ5JV';
+
+    String? token = await _storage.read(key: 'auth_token');
+    if (token == null) {
+      _redirectToLogin('Token no encontrado. Por favor, inicia sesión nuevamente.');
+      return;
+    }
 
     try {
       final response = await http.get(
@@ -86,11 +62,35 @@ class _CatalogueState extends State<Catalogue> {
 
           applySearchFilterSort();
         });
+      } else if (response.statusCode == 401) {
+        _redirectToLogin('Sesión expirada. Por favor, inicia sesión nuevamente.');
       } else {
         print('Failed to load cars. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching cars: $e');
+    }
+  }
+
+  void _redirectToLogin(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
+  String processImageUrl(String? imageUrl) {
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return 'assets/carro.png';
+    }
+    String cleanUrl = imageUrl.trim();
+    try {
+      Uri uri = Uri.parse(cleanUrl);
+      if (!uri.hasScheme) {
+        return 'assets/carro.png';
+      }
+      return cleanUrl;
+    } catch (e) {
+      print('Error processing image URL: $e');
+      return 'assets/carro.png';
     }
   }
 
@@ -125,14 +125,6 @@ class _CatalogueState extends State<Catalogue> {
   void setSortBy(String? criteria) {
     setState(() {
       sortBy = criteria;
-      applySearchFilterSort();
-    });
-  }
-
-  void setFilter(double min, double max) {
-    setState(() {
-      minPrice = min;
-      maxPrice = max;
       applySearchFilterSort();
     });
   }
@@ -203,7 +195,7 @@ class _CatalogueState extends State<Catalogue> {
                           DropdownMenuItem(
                               value: 'Newest', child: Text("Más Nuevo")),
                           DropdownMenuItem(
-                              value: 'Oldest', child: Text("Más Viejo")),
+                              value: 'Oldest', child: Text("Más Antiguo")),
                           DropdownMenuItem(
                               value: 'LowPrice', child: Text("Menor Precio")),
                           DropdownMenuItem(

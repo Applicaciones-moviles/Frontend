@@ -1,8 +1,18 @@
+import 'dart:io';
+
 import 'package:carconnect_aplication/base/screens/Cliente/cart.dart';
+import 'package:carconnect_aplication/base/screens/shared/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Cardescription extends StatefulWidget {
+  final String carId;
+
+  const Cardescription({Key? key, required this.carId}) : super(key: key);
+
   @override
   _CardescriptionState createState() => _CardescriptionState();
 }
@@ -10,6 +20,9 @@ class Cardescription extends StatefulWidget {
 class _CardescriptionState extends State<Cardescription> {
   DateTime selectedDate = DateTime.now();
   int amountDays = 1;
+  Map<String, dynamic> carDetails = {};
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  bool isFavorite = false;
 
   void _showCalendar() {
     showModalBottomSheet(
@@ -47,6 +60,110 @@ class _CardescriptionState extends State<Cardescription> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    fetchCarDetails();
+  }
+
+  Future<void> fetchCarDetails() async {
+    final carId = widget.carId;
+    print('ID recibido: $carId');
+
+    final url = Uri.parse(
+        'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/vehicle/$carId'
+    );
+    String? token = await _storage.read(key: 'auth_token');
+    if (token == null) {
+      print('Token no disponible. El usuario no está autenticado.');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    }
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == HttpStatus.ok) {
+        final carData = json.decode(response.body);
+        print('Detalles del coche: $carData');
+        setState(() {
+          carDetails = carData;
+        });
+      } else {
+        print('Failed to load car details. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching car details: $e');
+    }
+  }
+
+  Future<void> toggleFavorite() async {
+
+    final userId = await _storage.read(key: 'user_id');
+    final token = await _storage.read(key: 'auth_token');
+
+    if (userId == null || token == null) {
+
+      print('User ID o Token no disponible. El usuario no está autenticado.');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+      return;
+    }
+
+
+    final vehicleId = widget.carId;
+
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+
+
+    final url = Uri.parse(
+        'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/users/$userId/favorites');
+
+
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+
+
+    final body = json.encode({
+      'vehicleId': vehicleId,
+    });
+
+    try {
+
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 201) {
+
+        print('Vehículo agregado a favoritos');
+      } else {
+
+        setState(() {
+          isFavorite = !isFavorite;
+        });
+        print('Error al agregar a favoritos: ${response.statusCode}');
+      }
+    } catch (e) {
+
+      setState(() {
+        isFavorite = !isFavorite;
+      });
+      print('Error al hacer POST de favoritos: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -56,16 +173,36 @@ class _CardescriptionState extends State<Cardescription> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Image.asset(
-              'assets/carro.png',
-              width: double.infinity,
-              height: 200,
+            carDetails['UrlImage'] != null
+                ? Image.network(
+              carDetails['UrlImage'],
               fit: BoxFit.cover,
+              width: double.infinity,
+              height: 250,
+            )
+                : Container(
+              height: 250,
+              color: Colors.grey[300],
+              child: Center(
+                child: Text('Imagen no disponible'),
+              ),
             ),
             SizedBox(height: 16.0),
-            Text(
-              'Kia Sportage 18',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  carDetails['Brand'] ?? 'Marca no disponible',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : Colors.grey,
+                  ),
+                  onPressed: toggleFavorite,
+                ),
+              ],
             ),
             SizedBox(height: 16.0),
             Row(
@@ -103,12 +240,12 @@ class _CardescriptionState extends State<Cardescription> {
             ),
             SizedBox(height: 10),
             Text(
-              'S/. ${120 * amountDays}',
+              'S/. ${(carDetails['RentalCost'] ?? 120) * amountDays}',
               style: TextStyle(fontSize: 18),
             ),
             SizedBox(height: 20),
             Text(
-              'SUV versátil, perfecto para viajes largos o escapadas de fin de semana. Equipado con tecnología avanzada, amplio espacio interior y un diseño moderno que garantiza confort y seguridad. Ideal para familias o grupos, con una excelente relación calidad-precio para alquiler por horas.',
+                carDetails['Descripcion'] ?? 'Descripcion no disponible'
             ),
             SizedBox(height: 20),
             Text(

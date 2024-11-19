@@ -1,9 +1,15 @@
 import 'package:carconnect_aplication/base/screens/Cliente/catalogue.dart';
 import 'package:carconnect_aplication/base/screens/Cliente/favorite-car-detail.dart';
 import 'package:carconnect_aplication/base/screens/Cliente/cardescription.dart';
+import 'package:carconnect_aplication/base/screens/shared/login_page.dart';
 import 'package:carconnect_aplication/base/screens/shared/profile.dart'; // Importar el perfil correcto
 import 'package:carconnect_aplication/base/screens/shared/settings.dart'; // Importar configuración
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:io';
+
 
 class HomeClient extends StatefulWidget {
   const HomeClient({super.key});
@@ -152,53 +158,83 @@ class RentCarsScreen extends StatelessWidget {
   }
 }
 
-class FavoriteCarsScreen extends StatelessWidget {
+class FavoriteCarsScreen extends StatefulWidget {
   const FavoriteCarsScreen({super.key});
 
   @override
+  _FavoriteCarsScreenState createState() => _FavoriteCarsScreenState();
+}
+
+class _FavoriteCarsScreenState extends State<FavoriteCarsScreen> {
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  List<dynamic> favoriteCars = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchFavoriteCars();
+  }
+
+  Future<void> _fetchFavoriteCars() async {
+    final userId = await _storage.read(key: 'user_id');
+    final token = await _storage.read(key: 'auth_token');
+
+    if (userId == null || token == null) {
+      print('User ID o Token no disponible. El usuario no está autenticado.');
+      return;
+    }
+
+    final url = Uri.parse(
+        'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/users/$userId/favorites');
+
+    try {
+      final response = await http.get(url, headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          favoriteCars = data;
+          isLoading = false;
+        });
+      } else {
+        print('Error al cargar los favoritos: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error al hacer la solicitud: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ListView(
+    return isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
       padding: const EdgeInsets.all(16.0),
-      children: <Widget>[
-        CarCard(
-          imageUrl: 'https://example.com/car_image.png',
-          title: 'Kia Sportage 2021',
-          description: 'Negro / TRS 998',
-          price: 'S/. 120.00',
+      itemCount: favoriteCars.length,
+      itemBuilder: (context, index) {
+        final car = favoriteCars[index];
+        return CarCard(
+          imageUrl: car['UrlImage'] ?? '',
+          title: car['Brand'] ?? 'Marca no disponible',
+          description: car['Descripcion'] ?? 'Descripción no disponible',
+          price: 'S/. ${car['RentalCost'] ?? 0}',
           onPressedDetails: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => Cardescription()), // Navegar a la vista detallada de CarDescription
+              MaterialPageRoute(
+                builder: (context) => Cardescription(carId: car['id'].toString()),
+              ),
             );
           },
-        ),
-        const SizedBox(height: 16),
-        CarCard(
-          imageUrl: 'https://example.com/car_image.png',
-          title: 'Kia Sportage 2023',
-          description: 'Negro / TRS 998',
-          price: 'S/. 220.00',
-          onPressedDetails: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Cardescription()),
-            );
-          },
-        ),
-        const SizedBox(height: 16),
-        CarCard(
-          imageUrl: 'https://example.com/car_image.png',
-          title: 'Kia Sportage 2023',
-          description: 'Negro / TRS 998',
-          price: 'S/. 220.00',
-          onPressedDetails: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Cardescription()),
-            );
-          },
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -238,7 +274,11 @@ class CarCard extends StatelessWidget {
                 fit: BoxFit.cover,
               ),
               title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(description),
+              subtitle: Text(description,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.normal),
+              ),
               trailing: Text(price, style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
             Padding(

@@ -1,4 +1,5 @@
 import 'package:carconnect_aplication/base/screens/Cliente/cardescription.dart';
+import 'package:carconnect_aplication/base/screens/shared/login_page.dart';
 import 'package:carconnect_aplication/base/widgets/car_catalogue.dart';
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,6 @@ class Catalogue extends StatefulWidget {
 }
 
 class _CatalogueState extends State<Catalogue> {
-  final FlutterSecureStorage _storage = FlutterSecureStorage();
   List<dynamic> cars = [];
   List<dynamic> filteredCars = [];
   List<String> brandOptions = [];
@@ -23,6 +23,38 @@ class _CatalogueState extends State<Catalogue> {
   String? selectedBrand;
   double minPrice = 0;
   double maxPrice = double.infinity;
+
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
+
+  String processImgurUrl(String url) {
+    String id = url.replaceAll('https://imgur.com/', '');
+    if (id.contains('/a/')) {
+      id = id.replaceAll('/a/', '');
+    }
+    id = id.split('/').last;
+    id = id.split('.').first;
+    return 'https://i.imgur.com/$id.jpeg';
+  }
+
+  String processImageUrl(String? imageUrl) {
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return 'assets/carro.png';
+    }
+    String cleanUrl = imageUrl.trim();
+    try {
+      if (cleanUrl.contains('imgur.com')) {
+        return processImgurUrl(cleanUrl);
+      }
+      Uri uri = Uri.parse(cleanUrl);
+      if (!uri.hasScheme) {
+        return 'assets/carro.png';
+      }
+      return cleanUrl;
+    } catch (e) {
+      print('Error processing image URL: $e');
+      return 'assets/carro.png';
+    }
+  }
 
   @override
   void initState() {
@@ -33,12 +65,16 @@ class _CatalogueState extends State<Catalogue> {
   Future<void> fetchCars() async {
     final url = Uri.parse(
         'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/vehicle');
-
     String? token = await _storage.read(key: 'auth_token');
     if (token == null) {
-      _redirectToLogin('Token no encontrado. Por favor, inicia sesión nuevamente.');
-      return;
+      print('Token no disponible. El usuario no está autenticado.');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => LoginPage()),
+      );
     }
+
 
     try {
       final response = await http.get(
@@ -62,35 +98,11 @@ class _CatalogueState extends State<Catalogue> {
 
           applySearchFilterSort();
         });
-      } else if (response.statusCode == 401) {
-        _redirectToLogin('Sesión expirada. Por favor, inicia sesión nuevamente.');
       } else {
         print('Failed to load cars. Status code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching cars: $e');
-    }
-  }
-
-  void _redirectToLogin(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-    Navigator.pushReplacementNamed(context, '/login');
-  }
-
-  String processImageUrl(String? imageUrl) {
-    if (imageUrl == null || imageUrl.isEmpty) {
-      return 'assets/carro.png';
-    }
-    String cleanUrl = imageUrl.trim();
-    try {
-      Uri uri = Uri.parse(cleanUrl);
-      if (!uri.hasScheme) {
-        return 'assets/carro.png';
-      }
-      return cleanUrl;
-    } catch (e) {
-      print('Error processing image URL: $e');
-      return 'assets/carro.png';
     }
   }
 
@@ -125,6 +137,14 @@ class _CatalogueState extends State<Catalogue> {
   void setSortBy(String? criteria) {
     setState(() {
       sortBy = criteria;
+      applySearchFilterSort();
+    });
+  }
+
+  void setFilter(double min, double max) {
+    setState(() {
+      minPrice = min;
+      maxPrice = max;
       applySearchFilterSort();
     });
   }
@@ -195,7 +215,7 @@ class _CatalogueState extends State<Catalogue> {
                           DropdownMenuItem(
                               value: 'Newest', child: Text("Más Nuevo")),
                           DropdownMenuItem(
-                              value: 'Oldest', child: Text("Más Antiguo")),
+                              value: 'Oldest', child: Text("Más Viejo")),
                           DropdownMenuItem(
                               value: 'LowPrice', child: Text("Menor Precio")),
                           DropdownMenuItem(
@@ -238,10 +258,14 @@ class _CatalogueState extends State<Catalogue> {
                         final car = filteredCars[index];
                         return GestureDetector(
                           onTap: () {
+                            final carId = filteredCars[index]['id'].toString();
+
+
+                            print('Coche seleccionado con ID: $carId');
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Cardescription()),
+                                  builder: (context) => Cardescription(carId: carId)),
                             );
                           },
                           child: CarCatalogue(

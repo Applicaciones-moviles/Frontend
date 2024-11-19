@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:carconnect_aplication/base/screens/Cliente/cart.dart';
 import 'package:carconnect_aplication/base/screens/shared/login_page.dart';
 import 'package:flutter/material.dart';
@@ -63,11 +62,11 @@ class _CardescriptionState extends State<Cardescription> {
   void initState() {
     super.initState();
     fetchCarDetails();
+    fetchFavoriteCars();
   }
 
   Future<void> fetchCarDetails() async {
     final carId = widget.carId;
-    print('ID recibido: $carId');
 
     final url = Uri.parse(
         'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/vehicle/$carId'
@@ -103,13 +102,49 @@ class _CardescriptionState extends State<Cardescription> {
     }
   }
 
-  Future<void> toggleFavorite() async {
-
+  Future<void> fetchFavoriteCars() async {
     final userId = await _storage.read(key: 'user_id');
     final token = await _storage.read(key: 'auth_token');
 
     if (userId == null || token == null) {
+      print('User ID o Token no disponible. El usuario no está autenticado.');
+      return;
+    }
 
+    final url = Uri.parse(
+        'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/users/$userId/favorites');
+
+    try {
+      final response = await http.get(url, headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Vehículos en favoritos: $data');
+
+
+        final favoriteIds = List<int>.from(data.map((vehicle) => vehicle['id']));
+        final currentCarId = int.parse(widget.carId);
+        if (favoriteIds.contains(currentCarId)) {
+          setState(() {
+            isFavorite = true;
+          });
+        }
+      } else {
+        print('Error al cargar los favoritos: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error al hacer la solicitud de favoritos: $e');
+    }
+  }
+
+  Future<void> toggleFavorite() async {
+    final userId = await _storage.read(key: 'user_id');
+    final token = await _storage.read(key: 'auth_token');
+
+    if (userId == null || token == null) {
       print('User ID o Token no disponible. El usuario no está autenticado.');
       Navigator.pushReplacement(
         context,
@@ -118,48 +153,69 @@ class _CardescriptionState extends State<Cardescription> {
       return;
     }
 
-
     final vehicleId = widget.carId;
 
-    setState(() {
-      isFavorite = !isFavorite;
-    });
+    if (isFavorite) {
+      await removeFromFavorites(userId, token, vehicleId);
+    } else {
+      await addToFavorites(userId, token, vehicleId);
+    }
+  }
 
 
+  Future<void> addToFavorites(String userId, String token,
+      String vehicleId) async {
     final url = Uri.parse(
         'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/users/$userId/favorites');
-
 
     final headers = {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
     };
 
-
     final body = json.encode({
       'vehicleId': vehicleId,
     });
 
     try {
-
       final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 201) {
-
+        setState(() {
+          isFavorite = true;
+        });
         print('Vehículo agregado a favoritos');
       } else {
-
-        setState(() {
-          isFavorite = !isFavorite;
-        });
         print('Error al agregar a favoritos: ${response.statusCode}');
       }
     } catch (e) {
-
-      setState(() {
-        isFavorite = !isFavorite;
-      });
       print('Error al hacer POST de favoritos: $e');
+    }
+  }
+
+  Future<void> removeFromFavorites(String userId, String token,
+      String vehicleId) async {
+    final url = Uri.parse(
+        'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/users/$userId/favorites/vehicle/$vehicleId');
+
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+    };
+
+    try {
+      final response = await http.delete(url, headers: headers);
+
+      if (response.statusCode == 204) {
+        setState(() {
+          isFavorite = false;
+        });
+        print('Vehículo eliminado de favoritos');
+      } else {
+        print('Error al eliminar de favoritos: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error al hacer DELETE de favoritos: $e');
     }
   }
 

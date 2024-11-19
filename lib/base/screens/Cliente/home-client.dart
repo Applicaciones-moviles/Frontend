@@ -200,8 +200,17 @@ class _FavoriteCarsScreenState extends State<FavoriteCarsScreen> {
           favoriteCars = data;
           isLoading = false;
         });
+      } else if (response.statusCode == 404) {
+        setState(() {
+          favoriteCars = [];
+          isLoading = false;
+        });
+        print('No tienes vehículos favoritos.');
       } else {
         print('Error al cargar los favoritos: ${response.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
       }
     } catch (e) {
       print('Error al hacer la solicitud: $e');
@@ -213,9 +222,35 @@ class _FavoriteCarsScreenState extends State<FavoriteCarsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : ListView.builder(
+    if (isLoading) {
+
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (favoriteCars.isEmpty) {
+
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.favorite_border, size: 100, color: Colors.grey),
+            const SizedBox(height: 10),
+            const Text(
+              'Aún no tienes autos favoritos.',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Explora nuestro catálogo para agregar autos a tus favoritos.',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+
+    return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       itemCount: favoriteCars.length,
       itemBuilder: (context, index) {

@@ -7,6 +7,8 @@ class Cart extends StatelessWidget {
   final String model;
   final String licensePlate;
   final double rentalCost;
+  final DateTime startDate;
+  final DateTime endDate;
 
   const Cart({
     super.key,
@@ -15,10 +17,15 @@ class Cart extends StatelessWidget {
     required this.model,
     required this.licensePlate,
     required this.rentalCost,
+    required this.startDate,
+    required this.endDate,
   });
 
   @override
   Widget build(BuildContext context) {
+    final int rentalDays = endDate.difference(startDate).inDays + 1;
+    final double totalPrice = rentalDays * rentalCost;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -87,7 +94,7 @@ class Cart extends StatelessWidget {
                                     style: TextStyle(fontSize: 13.0),
                                   ),
                                   Text(
-                                    "S/.${rentalCost.toStringAsFixed(2)}",
+                                    "S/.${totalPrice.toStringAsFixed(2)}",
                                     style: const TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                 ],
@@ -135,7 +142,7 @@ class Cart extends StatelessWidget {
                             fontSize: 15.0, color: Color.fromARGB(143, 0, 0, 0)),
                       ),
                       Text(
-                        "S/.${rentalCost.toStringAsFixed(2)}",
+                        "S/.${totalPrice.toStringAsFixed(2)}",
                         style: const TextStyle(
                             fontSize: 15.0, fontWeight: FontWeight.w700),
                       ),
@@ -172,8 +179,23 @@ class Cart extends StatelessWidget {
             size: 30,
           ),
           title: const Text('Adjunta tu Firma digital'),
-          content: const Text(
-              'Es obligatorio completar este paso para proceder con la reserva.'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Es obligatorio completar este paso para proceder con la reserva.',
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Placa: $licensePlate',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
           actions: <Widget>[
             ElevatedButton(
               style: OutlinedButton.styleFrom(
@@ -199,7 +221,7 @@ class Cart extends StatelessWidget {
                 'Completar Firma',
                 style: TextStyle(color: Colors.white),
               ),
-            )
+            ),
           ],
         );
       },

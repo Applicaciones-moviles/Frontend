@@ -17,8 +17,8 @@ class Cardescription extends StatefulWidget {
 }
 
 class _CardescriptionState extends State<Cardescription> {
-  DateTime selectedDate = DateTime.now();
-  int amountDays = 1;
+  DateTime? startDate;
+  DateTime? endDate;
   Map<String, dynamic> carDetails = {};
   final FlutterSecureStorage _storage = FlutterSecureStorage();
   bool isFavorite = false;
@@ -33,23 +33,40 @@ class _CardescriptionState extends State<Cardescription> {
           child: Column(
             children: [
               Text(
-                'Selecciona una fecha',
+                'Selecciona una fecha de inicio y fin',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              //SizedBox(height: 16.0),
               TableCalendar(
                 firstDay: DateTime.utc(2020, 1, 1),
                 lastDay: DateTime.utc(2025, 12, 31),
-                focusedDay: selectedDate,
+                focusedDay: startDate ?? DateTime.now(),
                 onDaySelected: (selectedDay, focusedDay) {
                   setState(() {
-                    selectedDate = selectedDay;
+                    if (startDate == null || (startDate != null && endDate != null)) {
+                      startDate = selectedDay;
+                      endDate = null;
+                    } else {
+                      endDate = selectedDay;
+                    }
                   });
-                  Navigator.pop(context);
                 },
                 selectedDayPredicate: (day) {
-                  return isSameDay(selectedDate, day);
+                  return isSameDay(startDate, day) || isSameDay(endDate, day);
                 },
+                rangeSelectionMode: RangeSelectionMode.toggledOn,
+                onRangeSelected: (start, end, focusedDay) {
+                  setState(() {
+                    startDate = start;
+                    endDate = end;
+                  });
+                },
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {}); // Update the UI before closing the modal
+                  Navigator.pop(context);
+                },
+                child: Text('Confirmar fechas'),
               ),
             ],
           ),
@@ -124,7 +141,6 @@ class _CardescriptionState extends State<Cardescription> {
         final data = json.decode(response.body);
         print('Vehículos en favoritos: $data');
 
-
         final favoriteIds = List<int>.from(data.map((vehicle) => vehicle['id']));
         final currentCarId = int.parse(widget.carId);
         if (favoriteIds.contains(currentCarId)) {
@@ -161,7 +177,6 @@ class _CardescriptionState extends State<Cardescription> {
       await addToFavorites(userId, token, vehicleId);
     }
   }
-
 
   Future<void> addToFavorites(String userId, String token,
       String vehicleId) async {
@@ -219,8 +234,59 @@ class _CardescriptionState extends State<Cardescription> {
     }
   }
 
+  Future<void> rentCar() async {
+    if (startDate == null || endDate == null) {
+      print('Las fechas de inicio y fin deben ser seleccionadas.');
+      return;
+    }
+
+    final userId = await _storage.read(key: 'user_id');
+    final token = await _storage.read(key: 'auth_token');
+
+    if (userId == null || token == null) {
+      print('User ID o Token no disponible. El usuario no está autenticado.');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+      return;
+    }
+
+    final url = Uri.parse(
+        'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/rent');
+
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    };
+
+    final body = json.encode({
+      'carId': widget.carId,
+      'userId': userId,
+      'startDate': startDate!.toIso8601String(),
+      'endDate': endDate!.toIso8601String(),
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 201) {
+        print('Vehículo rentado exitosamente');
+      } else {
+        print('Error al rentar el vehículo: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error al hacer POST de renta: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    int rentalDays = (startDate != null && endDate != null)
+        ? endDate!.difference(startDate!).inDays + 1
+        : 0;
+    num totalPrice = rentalDays * (carDetails['RentalCost']?.toDouble() ?? 120.0);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Car Description'),
@@ -262,89 +328,58 @@ class _CardescriptionState extends State<Cardescription> {
             ),
 
             SizedBox(height: 16.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-
-                Text(
-                  'Días por alquilar',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.lightBlue),
-                ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.remove),
-                      onPressed: () {
-                        setState(() {
-                          if (amountDays > 1) amountDays--;
-                        });
-                      },
-                    ),
-                    Text('$amountDays', style: TextStyle(fontSize: 18)),
-                    IconButton(
-                      icon: Icon(Icons.add),
-                      onPressed: () {
-                        setState(() {
-                          amountDays++;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
             Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                //SizedBox(height: 10),
-                Text(
-                  'S/. ${(carDetails['RentalCost'] ?? 120) * amountDays}',
-                  style: TextStyle(fontSize: 18),
-                ),
-                SizedBox(height: 20),
-                Text(
-                    carDetails['Descripcion'] ?? 'Descripcion no disponible'
-                ),
-                SizedBox(height: 20),
-                Text(
-                  'Presentaciones',
-                  style: TextStyle(
-                      color: Colors.lightBlue, fontWeight: FontWeight.bold),
-                ),
-                Text('Velocidad máxima: ${carDetails['MaximumSpeed']} km/h'),
-                Text('Consumo: ${carDetails['Consumption']} I/100km'),
-                SizedBox(height: 10),
-                Text(
-                  'Dimensiones',
-                  style: TextStyle(
-                      color: Colors.lightBlue, fontWeight: FontWeight.bold),
-                ),
-                Text('Largo/Ancho/Alto: ${carDetails['Dimensions']} mm'),
-                Text('Peso: ${carDetails['Weight']} kg'),
-                SizedBox(height: 10),
-                Text(
-                  'Propietario',
-                  style: TextStyle(
-                      color: Colors.lightBlue, fontWeight: FontWeight.bold),
-                ),
-                /*Text(
-                    'Nombre: ${carDetails['OwnerName'] ?? 'No disponible'}\nTeléfono: ${carDetails['OwnerPhone'] ?? 'No disponible'}\nCorreo: ${carDetails['OwnerEmail'] ?? 'No disponible'}'),
-                SizedBox(height: 10),
-                 */
-                Text(
-                    'Nombre: Erick R.\nTeléfono: 9902229191\nCorreo: ericksl301@gmail.com'),
-                SizedBox(height: 10),
-                Text(
-                  'Alquiler',
-                  style: TextStyle(
-                      color: Colors.lightBlue, fontWeight: FontWeight.bold),
-                ),
-                Text('Costo por día: S/${carDetails['RentalCost']}'),
-                Text('Costo por mes: S/${carDetails['RentalCost']*30}'),
-              ]
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Precio por día de alquiler',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.lightBlue),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'S/. ${carDetails['RentalCost'] ?? 120}',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                      carDetails['Descripcion'] ?? 'Descripcion no disponible'
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Presentaciones',
+                    style: TextStyle(
+                        color: Colors.lightBlue, fontWeight: FontWeight.bold),
+                  ),
+                  Text('Velocidad máxima: ${carDetails['MaximumSpeed']} km/h'),
+                  Text('Consumo: ${carDetails['Consumption']} I/100km'),
+                  SizedBox(height: 10),
+                  Text(
+                    'Dimensiones',
+                    style: TextStyle(
+                        color: Colors.lightBlue, fontWeight: FontWeight.bold),
+                  ),
+                  Text('Largo/Ancho/Alto: ${carDetails['Dimensions']} mm'),
+                  Text('Peso: ${carDetails['Weight']} kg'),
+                  SizedBox(height: 10),
+                  Text(
+                    'Propietario',
+                    style: TextStyle(
+                        color: Colors.lightBlue, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                      'Nombre: Erick R.\nTeléfono: 9902229191\nCorreo: ericksl301@gmail.com'),
+                  SizedBox(height: 10),
+                  Text(
+                    'Alquiler',
+                    style: TextStyle(
+                        color: Colors.lightBlue, fontWeight: FontWeight.bold),
+                  ),
+                  Text('Costo por día: S/${carDetails['RentalCost']}'),
+                  Text('Costo por mes: S/${carDetails['RentalCost'] * 30}'),
+                ]
             ),
 
             SizedBox(height: 20),
@@ -361,7 +396,9 @@ class _CardescriptionState extends State<Cardescription> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Fecha de reserva: ${selectedDate.toLocal().toString().split(' ')[0]}',
+                      startDate != null && endDate != null
+                          ? 'Fecha de reserva: ${startDate!.toLocal().toString().split(' ')[0]} - ${endDate!.toLocal().toString().split(' ')[0]}'
+                          : 'Selecciona fechas de reserva',
                       style: TextStyle(fontSize: 16),
                     ),
                     Icon(Icons.arrow_forward_ios, color: Colors.lightBlue),
@@ -372,18 +409,27 @@ class _CardescriptionState extends State<Cardescription> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Cart(
-                      imageUrl: carDetails['UrlImage'] ?? '',
-                      brand: carDetails['Brand'] ?? 'Marca no disponible',
-                      model: carDetails['Model'] ?? 'Modelo no disponible',
-                      licensePlate: carDetails['Placa'] ?? 'Placa no disponible',
-                      rentalCost: carDetails['RentalCost']?.toDouble() ?? 0.0,
+                if (startDate != null && endDate != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Cart(
+                        imageUrl: carDetails['UrlImage'] ?? '',
+                        brand: carDetails['Brand'] ?? 'Marca no disponible',
+                        model: carDetails['Model'] ?? 'Modelo no disponible',
+                        licensePlate: carDetails['Placa'] ?? 'Placa no disponible',
+                        rentalCost: carDetails['RentalCost']?.toDouble() ?? 120.0,
+                        startDate: startDate!,
+                        endDate: endDate!,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  // Mostrar un mensaje si las fechas no están seleccionadas
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Por favor, selecciona las fechas de reserva.')),
+                  );
+                }
               },
               child: const Text('Continuar'),
               style: ElevatedButton.styleFrom(
@@ -395,7 +441,6 @@ class _CardescriptionState extends State<Cardescription> {
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
               ),
             ),
-
           ],
         ),
       ),

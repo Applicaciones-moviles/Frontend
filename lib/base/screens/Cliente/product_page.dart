@@ -4,7 +4,26 @@ import 'package:file_picker/file_picker.dart';
 import 'package:carconnect_aplication/base/components/my_button.dart';
 
 class ProductPage extends StatefulWidget {
-  const ProductPage({super.key});
+  final String lessorName;
+  final String lessorDni;
+  final String vehicleModel;
+  final String vehicleBrand;
+  final String licensePlate;
+  final String startDate;
+  final String endDate;
+  final double dailyRent;
+
+  const ProductPage({
+    Key? key,
+    required this.lessorName,
+    required this.lessorDni,
+    required this.vehicleModel,
+    required this.vehicleBrand,
+    required this.licensePlate,
+    required this.startDate,
+    required this.endDate,
+    required this.dailyRent,
+  }) : super(key: key);
 
   @override
   _ProductPageState createState() => _ProductPageState();
@@ -35,9 +54,7 @@ class _ProductPageState extends State<ProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        //title: const Text('CarConnect - Contrato de Alquiler'),
-      ),
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -64,24 +81,24 @@ class _ProductPageState extends State<ProductPage> {
             const SizedBox(height: 20),
 
             Text(
-              'Entre el [Arrendador] DNI [DNI], y [Arrendatario] DNI [DNI], se acuerda el alquiler del vehículo [Vehiculo] con placa [Placa] bajo los siguientes términos:',
+              'Entre ${widget.lessorName}, DNI ${widget.lessorDni}, y [Arrendatario], '
+                  'se acuerda el alquiler del vehículo ${widget.vehicleBrand} ${widget.vehicleModel} '
+                  'con placa ${widget.licensePlate} bajo los siguientes términos:',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 20),
 
             Text(
-              '1) Duración desde [Fecha de inicio] hasta [Fecha de finalización].\n'
-                  '2) Renta Diaria: 250 soles.\n'
-                  '3) Depósito: [Monto] soles.\n'
-                  '4) Devolución: El vehículo debe devolverse en buen estado y con el mismo nivel de combustible.\n'
-                  '5) Firmas Digitales: Ambas partes firman digitalmente este contrato.',
+              '1. Duración desde ${widget.startDate} hasta ${widget.endDate}.\n'
+                  '2. Renta Diaria: ${widget.dailyRent.toStringAsFixed(2)} soles.\n'
+                  '3. Devolución: El vehículo debe devolverse en buen estado y con el mismo nivel de combustible.\n'
+                  '4. Firmas Digitales: Ambas partes firman digitalmente este contrato.',
               style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 40),
 
             Column(
               children: [
-
                 MyButton(
                   text: _fileName ?? 'Adjuntar firma digital',
                   onPressed: _pickFile,

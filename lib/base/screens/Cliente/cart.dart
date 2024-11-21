@@ -1,7 +1,8 @@
 import 'package:carconnect_aplication/base/screens/Cliente/product_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class Cart extends StatelessWidget {
+class Cart extends StatefulWidget {
   final String imageUrl;
   final String brand;
   final String model;
@@ -22,9 +23,35 @@ class Cart extends StatelessWidget {
   });
 
   @override
+  _CartState createState() => _CartState();
+}
+
+class _CartState extends State<Cart> {
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  String? customerName;
+  String? customerDNI;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserDetails();
+  }
+
+  Future<void> _fetchUserDetails() async {
+    // Leer datos del cliente desde FlutterSecureStorage
+    final name = await _storage.read(key: 'user_name');
+    final phone = await _storage.read(key: 'user_phone');
+
+    setState(() {
+      customerName = name ?? "Nombre no disponible";
+      customerDNI = phone ?? "Teléfono no disponible";
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final int rentalDays = endDate.difference(startDate).inDays + 1;
-    final double totalPrice = rentalDays * rentalCost;
+    final int rentalDays = widget.endDate.difference(widget.startDate).inDays + 1;
+    final double totalPrice = rentalDays * widget.rentalCost;
 
     return Scaffold(
       appBar: AppBar(
@@ -60,8 +87,8 @@ class Cart extends StatelessWidget {
                           height: 110,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: imageUrl.isNotEmpty
-                                  ? NetworkImage(imageUrl)
+                              image: widget.imageUrl.isNotEmpty
+                                  ? NetworkImage(widget.imageUrl)
                                   : const AssetImage('assets/images/car.jpg')
                               as ImageProvider,
                               fit: BoxFit.cover,
@@ -76,11 +103,11 @@ class Cart extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "$brand $model",
+                                "${widget.brand} ${widget.model}",
                                 style: const TextStyle(fontWeight: FontWeight.w600),
                               ),
                               Text(
-                                "Placa: $licensePlate",
+                                "Placa: ${widget.licensePlate}",
                                 style: const TextStyle(
                                   color: Color.fromARGB(122, 0, 0, 0),
                                 ),
@@ -153,7 +180,9 @@ class Cart extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xff006FFD),
                     ),
-                    onPressed: () => _dialogBuilder(context),
+                    onPressed: customerName != null && customerDNI != null
+                        ? () => _navigateToProductPage(context)
+                        : null,
                     child: const Text(
                       "Continuar",
                       style: TextStyle(color: Colors.white, fontSize: 16),
@@ -168,63 +197,21 @@ class Cart extends StatelessWidget {
     );
   }
 
-  Future<void> _dialogBuilder(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          icon: const Icon(
-            Icons.warning_rounded,
-            color: Colors.blue,
-            size: 30,
-          ),
-          title: const Text('Adjunta tu Firma digital'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Es obligatorio completar este paso para proceder con la reserva.',
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Placa: $licensePlate',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            ElevatedButton(
-              style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xff1890ff))),
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(color: Color(0xff1890ff)),
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff1890ff)),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProductPage()),
-                );
-              },
-              child: const Text(
-                'Completar Firma',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        );
-      },
+  void _navigateToProductPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductPage(
+          lessorName: customerName ?? "Nombre no disponible",
+          lessorDni: customerDNI ?? "Teléfono no disponible",
+          vehicleModel: widget.model,
+          vehicleBrand: widget.brand,
+          licensePlate: widget.licensePlate,
+          startDate: widget.startDate.toLocal().toString().split(' ')[0],
+          endDate: widget.endDate.toLocal().toString().split(' ')[0],
+          dailyRent: widget.rentalCost,
+        ),
+      ),
     );
   }
 }

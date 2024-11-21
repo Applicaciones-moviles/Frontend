@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:carconnect_aplication/base/screens/Dueño de auto/custominput.dart';
-import 'package:carconnect_aplication/base/screens/Dueño de auto/preview.dart'; // Importa la clase PreviewCar
+import 'preview.dart'; // Importa la clase PreviewCar
 
 class Registercar extends StatefulWidget {
   const Registercar({Key? key}) : super(key: key);
@@ -14,8 +13,21 @@ class Registercar extends StatefulWidget {
 class _RegistercarState extends State<Registercar> {
   DateTime? _startDate;
   DateTime? _endDate;
-  File? _selectedImage;
   int _selectedDays = 1; // Días disponibles para alquilar (valor inicial)
+  bool _isTermsAccepted = false; // Controla si se aceptaron los términos
+
+  final TextEditingController _brandController = TextEditingController();
+  final TextEditingController _modelController = TextEditingController();
+  final TextEditingController _maxSpeedController = TextEditingController();
+  final TextEditingController _consumptionController = TextEditingController();
+  final TextEditingController _dimensionsController = TextEditingController();
+  final TextEditingController _weightController = TextEditingController();
+  final TextEditingController _pricePerDayController = TextEditingController();
+  final TextEditingController _licensePlateController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+
+  File? _selectedImage;
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -26,6 +38,35 @@ class _RegistercarState extends State<Registercar> {
         _selectedImage = File(pickedFile.path);
       });
     }
+  }
+
+  void _navigateToPreview() {
+    if (!_isTermsAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debes aceptar los términos y condiciones.')),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PreviewCar(
+          brand: _brandController.text,
+          model: _modelController.text,
+          maxSpeed: _maxSpeedController.text,
+          consumption: _consumptionController.text,
+          dimensions: _dimensionsController.text,
+          weight: _weightController.text,
+          pricePerDay: _pricePerDayController.text,
+          licensePlate: _licensePlateController.text,
+          description: _descriptionController.text,
+          address: _addressController.text,
+          image: _selectedImage,
+          availableDays: _selectedDays, // Pasa los días seleccionados
+        ),
+      ),
+    );
   }
 
   @override
@@ -55,49 +96,37 @@ class _RegistercarState extends State<Registercar> {
               Row(
                 children: [
                   Expanded(
-                    child: Custominput(
-                      label: 'Marca',
-                    ),
+                    child: _buildInputField('Marca', _brandController),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Custominput(
-                      label: 'Modelo',
-                    ),
+                    child: _buildInputField('Modelo', _modelController),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              // Velocidad Maxima y Consumo
+              // Velocidad Máxima y Consumo
               Row(
                 children: [
                   Expanded(
-                    child: Custominput(
-                      label: 'Velocidad Máx.',
-                    ),
+                    child: _buildInputField('Velocidad Máx.', _maxSpeedController),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Custominput(
-                      label: 'Consumo',
-                    ),
+                    child: _buildInputField('Consumo', _consumptionController),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              // Largo/Ancho/Alto y Peso
+              // Dimensiones y Peso
               Row(
                 children: [
                   Expanded(
-                    child: Custominput(
-                      label: 'Largo/Ancho/Alto',
-                    ),
+                    child: _buildInputField('Largo/Ancho/Alto', _dimensionsController),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Custominput(
-                      label: 'Peso',
-                    ),
+                    child: _buildInputField('Peso', _weightController),
                   ),
                 ],
               ),
@@ -106,15 +135,11 @@ class _RegistercarState extends State<Registercar> {
               Row(
                 children: [
                   Expanded(
-                    child: Custominput(
-                      label: 'Precio por día',
-                    ),
+                    child: _buildInputField('Precio por día', _pricePerDayController),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Custominput(
-                      label: 'Placa',
-                    ),
+                    child: _buildInputField('Placa', _licensePlateController),
                   ),
                 ],
               ),
@@ -161,8 +186,9 @@ class _RegistercarState extends State<Registercar> {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Custominput(
-                      label: 'Descripción del Auto',
+                    child: _buildInputField(
+                      'Descripción del Auto',
+                      _descriptionController,
                       maxLines: 5,
                     ),
                   ),
@@ -191,13 +217,19 @@ class _RegistercarState extends State<Registercar> {
                 }),
               ),
               const SizedBox(height: 20),
-              // Dirección
-              Custominput(label: 'Dirección'),
+              _buildInputField('Dirección', _addressController),
               const SizedBox(height: 20),
               // Términos y Condiciones
               Row(
                 children: [
-                  Checkbox(value: false, onChanged: (bool? value) {}),
+                  Checkbox(
+                    value: _isTermsAccepted,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _isTermsAccepted = value ?? false;
+                      });
+                    },
+                  ),
                   const Expanded(
                     child: Text(
                       'He leído y estoy de acuerdo con los Términos y Condiciones y la Política de Privacidad.',
@@ -209,14 +241,7 @@ class _RegistercarState extends State<Registercar> {
               const SizedBox(height: 20),
               // Botón Previsualizar
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PreviewCar(), // Navega a la clase PreviewCar
-                    ),
-                  );
-                },
+                onPressed: _navigateToPreview,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -236,6 +261,20 @@ class _RegistercarState extends State<Registercar> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputField(String label, TextEditingController controller,
+      {int maxLines = 1}) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
       ),
     );

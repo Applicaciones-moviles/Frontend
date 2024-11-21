@@ -1,16 +1,36 @@
 import 'package:carconnect_aplication/base/screens/Due%C3%B1o%20de%20auto/product_page_car_owner.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
 
-import '../Cliente/product_page.dart';
-// Importa ProductPage (asegúrate de que esté en el archivo correcto)
+class PreviewCar extends StatelessWidget {
+  final String brand;
+  final String model;
+  final String maxSpeed;
+  final String consumption;
+  final String dimensions;
+  final String weight;
+  final String pricePerDay;
+  final String licensePlate;
+  final String description;
+  final String address;
+  final File? image;
+  final int availableDays; // Nuevo campo para días disponibles
 
-class PreviewCar extends StatefulWidget {
-  @override
-  _PreviewCarState createState() => _PreviewCarState();
-}
-
-class _PreviewCarState extends State<PreviewCar> {
-  int _rentalDays = 1;
+  const PreviewCar({
+    Key? key,
+    required this.brand,
+    required this.model,
+    required this.maxSpeed,
+    required this.consumption,
+    required this.dimensions,
+    required this.weight,
+    required this.pricePerDay,
+    required this.licensePlate,
+    required this.description,
+    required this.address,
+    this.image,
+    required this.availableDays, // Inicializamos el campo
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +40,8 @@ class _PreviewCarState extends State<PreviewCar> {
         foregroundColor: Colors.black,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Padding(
@@ -32,135 +50,92 @@ class _PreviewCarState extends State<PreviewCar> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.network(
-                'https://example.com/car_image.png',
+              image != null
+                  ? Image.file(
+                image!,
                 width: double.infinity,
                 height: 200,
                 fit: BoxFit.cover,
+              )
+                  : Container(
+                width: double.infinity,
+                height: 200,
+                color: Colors.grey[300],
+                child: const Icon(Icons.image, size: 100, color: Colors.grey),
               ),
-              SizedBox(height: 20),
-              Text(
-                'Kia Sportage 2018',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-              ),
-              SizedBox(height: 8),
-              Text(
-                '€ 120.00',
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700]),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'SUV versátil, perfecto para viajes largos o escapadas de fin de semana. Equipado con tecnología avanzada, amplio espacio interior y un diseño moderno que garantiza confort y seguridad. Ideal para familias o grupos, con una excelente relación calidad-precio para alquiler por horas.',
-                style: TextStyle(fontSize: 14, color: Colors.grey[800]),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Días por alquilar',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove_circle_outline,
-                            color: Colors.blue),
-                        onPressed: () {
-                          setState(() {
-                            if (_rentalDays > 1) {
-                              _rentalDays--;
-                            }
-                          });
-                        },
-                      ),
-                      Text('$_rentalDays', style: TextStyle(fontSize: 16)),
-                      IconButton(
-                        icon: Icon(Icons.add_circle_outline, color: Colors.blue),
-                        onPressed: () {
-                          setState(() {
-                            _rentalDays++;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Divider(thickness: 1, color: Colors.grey[300]),
-              SizedBox(height: 16),
-              Text(
-                'Presentaciones',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Velocidad máxima: 170 km/h\nConsumo: 9.7 l/100 km',
-                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Dimensiones',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Largo/Ancho/Alto: 5,325 / 1,855 / 1,815 mm\nPeso: 2,110 kg',
-                style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Días disponibles',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              SizedBox(height: 8),
-              Text(
-                '31 días',
-                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-              ),
-              SizedBox(height: 20),
-              Text(
-                'Dirección:',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Jr. Las Palmeras 369',
-                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-              ),
-              SizedBox(height: 30),
+              const SizedBox(height: 20),
+              Text('$brand $model', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              Text('S/.$pricePerDay', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              Text(description, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              const SizedBox(height: 17),
+              Text('Presentaciones', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              Text('Velocidad Máxima: $maxSpeed km/h', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              Text('Consumo: $consumption l/100 km', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              const SizedBox(height: 20),
+              Text('Dimensiones', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              Text('Largo/Ancho/Alto: $dimensions mm', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              Text('Peso: $weight kg', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              const SizedBox(height: 20),
+              Text('Días disponibles', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              Text('$availableDays día(s)', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              const SizedBox(height: 20),
+              Text('Dirección', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              Text('$address', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => ProductPageCarOwner(), // Redirige a ProductPage
+                      builder: (context) => ProductPageCarOwner(
+                        vehiclePlate: licensePlate, // Placa del vehículo
+                        dailyRent: pricePerDay,    // Renta diaria
+                        vehicleBrand: brand,       // Marca del vehículo
+                        vehicleModel: model,       // Modelo del vehículo
+                      ),
                     ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 child: Center(
-                  child: Text(
+                  child: const Text(
                     'Continuar con la creación',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(value, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+        ],
       ),
     );
   }

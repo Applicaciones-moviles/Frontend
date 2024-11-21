@@ -28,11 +28,7 @@ class _PaymentCardState extends State<PaymentCard> {
         leading: TextButton(
           child: const Text('Cancel', style: TextStyle(color: Colors.blue, )),
           onPressed: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const MyApp()),
-                  (Route<dynamic> route) => false,
-            );
+            Navigator.of(context).pop(); // Cierra el diálogo
           },
         ),
         title: const Text(

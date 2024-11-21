@@ -1,9 +1,21 @@
 import 'package:carconnect_aplication/base/screens/Cliente/product_page.dart';
-import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
 
 class Cart extends StatelessWidget {
-  const Cart({super.key});
+  final String imageUrl;
+  final String brand;
+  final String model;
+  final String licensePlate;
+  final double rentalCost;
+
+  const Cart({
+    super.key,
+    required this.imageUrl,
+    required this.brand,
+    required this.model,
+    required this.licensePlate,
+    required this.rentalCost,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,22 +29,20 @@ class Cart extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(FluentSystemIcons.ic_fluent_arrow_left_filled),
+          icon: const Icon(Icons.arrow_back),
           color: const Color.fromARGB(255, 96, 123, 243),
         ),
       ),
       body: Stack(
         children: [
           Padding(
-            padding:
-            const EdgeInsets.symmetric(vertical: 10.0, horizontal: 19.0),
+            padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 19.0),
             child: Column(
               children: [
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
-                    border:
-                    Border.all(color: const Color.fromARGB(38, 7, 7, 7)),
+                    border: Border.all(color: const Color.fromARGB(38, 7, 7, 7)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -41,44 +51,44 @@ class Cart extends StatelessWidget {
                         Container(
                           width: 130,
                           height: 110,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: AssetImage('assets/images/car.jpg'),
+                              image: imageUrl.isNotEmpty
+                                  ? NetworkImage(imageUrl)
+                                  : const AssetImage('assets/images/car.jpg')
+                              as ImageProvider,
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                         const SizedBox(width: 11),
                         ConstrainedBox(
-                          constraints:
-                          BoxConstraints.tight(const Size(161, 110)),
-                          child: const Column(
+                          constraints: BoxConstraints.tight(const Size(161, 110)),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "Kia Sportage 2018",
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                                "$brand $model",
+                                style: const TextStyle(fontWeight: FontWeight.w600),
                               ),
                               Text(
-                                "Negro / TRS 998",
-                                style: TextStyle(
+                                "Placa: $licensePlate",
+                                style: const TextStyle(
                                   color: Color.fromARGB(122, 0, 0, 0),
                                 ),
                               ),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Precio Total",
                                     style: TextStyle(fontSize: 13.0),
                                   ),
                                   Text(
-                                    "S/.120.00",
-                                    style:
-                                    TextStyle(fontWeight: FontWeight.w600),
+                                    "S/.${rentalCost.toStringAsFixed(2)}",
+                                    style: const TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                 ],
                               ),
@@ -98,8 +108,7 @@ class Cart extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              padding:
-              const EdgeInsets.symmetric(vertical: 20, horizontal: 19.0),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 19.0),
               width: double.infinity,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -117,37 +126,30 @@ class Cart extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         "Total",
                         style: TextStyle(
-                            fontSize: 15.0,
-                            color: Color.fromARGB(143, 0, 0, 0)),
+                            fontSize: 15.0, color: Color.fromARGB(143, 0, 0, 0)),
                       ),
                       Text(
-                        "S/.120.00",
-                        style: TextStyle(
+                        "S/.${rentalCost.toStringAsFixed(2)}",
+                        style: const TextStyle(
                             fontSize: 15.0, fontWeight: FontWeight.w700),
                       ),
                     ],
                   ),
                   const SizedBox(height: 15),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    width: double.infinity,
-                    child: Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xff006FFD),
-                        ),
-                        onPressed: () => _dialogBuilder(context),
-                        child: const Text(
-                          "Continuar",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff006FFD),
+                    ),
+                    onPressed: () => _dialogBuilder(context),
+                    child: const Text(
+                      "Continuar",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ),
                 ],
@@ -161,45 +163,46 @@ class Cart extends StatelessWidget {
 
   Future<void> _dialogBuilder(BuildContext context) {
     return showDialog<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            icon: const Icon(
-              Icons.warning_rounded,
-              color: Colors.blue,
-              size: 30,
-            ),
-            title: const Text('Adjunta tu Firma digital'),
-            content: const Text(
-                'Es obligatorio completar este paso para proceder con la reserva.'),
-            actions: <Widget>[
-              ElevatedButton(
-                style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Color(0xff1890ff))),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Cancelar',
-                  style: TextStyle(color: Color(0xff1890ff)),
-                ),
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          icon: const Icon(
+            Icons.warning_rounded,
+            color: Colors.blue,
+            size: 30,
+          ),
+          title: const Text('Adjunta tu Firma digital'),
+          content: const Text(
+              'Es obligatorio completar este paso para proceder con la reserva.'),
+          actions: <Widget>[
+            ElevatedButton(
+              style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xff1890ff))),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Color(0xff1890ff)),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xff1890ff)),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProductPage()),
-                  );
-                },
-                child: const Text(
-                  'Completar Firma',
-                  style: TextStyle(color: Colors.white),
-                ),
-              )
-            ],
-          );
-        });
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff1890ff)),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProductPage()),
+                );
+              },
+              child: const Text(
+                'Completar Firma',
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          ],
+        );
+      },
+    );
   }
 }

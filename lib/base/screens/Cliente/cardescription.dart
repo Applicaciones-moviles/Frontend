@@ -28,7 +28,7 @@ class _CardescriptionState extends State<Cardescription> {
       context: context,
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(15.0),
           height: 400,
           child: Column(
             children: [
@@ -36,7 +36,7 @@ class _CardescriptionState extends State<Cardescription> {
                 'Selecciona una fecha',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 16.0),
+              //SizedBox(height: 16.0),
               TableCalendar(
                 firstDay: DateTime.utc(2020, 1, 1),
                 lastDay: DateTime.utc(2025, 12, 31),
@@ -260,10 +260,12 @@ class _CardescriptionState extends State<Cardescription> {
                 ),
               ],
             ),
+
             SizedBox(height: 16.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+
                 Text(
                   'Días por alquilar',
                   style: TextStyle(
@@ -294,44 +296,57 @@ class _CardescriptionState extends State<Cardescription> {
                 ),
               ],
             ),
-            SizedBox(height: 10),
-            Text(
-              'S/. ${(carDetails['RentalCost'] ?? 120) * amountDays}',
-              style: TextStyle(fontSize: 18),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //SizedBox(height: 10),
+                Text(
+                  'S/. ${(carDetails['RentalCost'] ?? 120) * amountDays}',
+                  style: TextStyle(fontSize: 18),
+                ),
+                SizedBox(height: 20),
+                Text(
+                    carDetails['Descripcion'] ?? 'Descripcion no disponible'
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'Presentaciones',
+                  style: TextStyle(
+                      color: Colors.lightBlue, fontWeight: FontWeight.bold),
+                ),
+                Text('Velocidad máxima: ${carDetails['MaximumSpeed']} km/h'),
+                Text('Consumo: ${carDetails['Consumption']} I/100km'),
+                SizedBox(height: 10),
+                Text(
+                  'Dimensiones',
+                  style: TextStyle(
+                      color: Colors.lightBlue, fontWeight: FontWeight.bold),
+                ),
+                Text('Largo/Ancho/Alto: ${carDetails['Dimensions']} mm'),
+                Text('Peso: ${carDetails['Weight']} kg'),
+                SizedBox(height: 10),
+                Text(
+                  'Propietario',
+                  style: TextStyle(
+                      color: Colors.lightBlue, fontWeight: FontWeight.bold),
+                ),
+                /*Text(
+                    'Nombre: ${carDetails['OwnerName'] ?? 'No disponible'}\nTeléfono: ${carDetails['OwnerPhone'] ?? 'No disponible'}\nCorreo: ${carDetails['OwnerEmail'] ?? 'No disponible'}'),
+                SizedBox(height: 10),
+                 */
+                Text(
+                    'Nombre: Erick R.\nTeléfono: 9902229191\nCorreo: ericksl301@gmail.com'),
+                SizedBox(height: 10),
+                Text(
+                  'Alquiler',
+                  style: TextStyle(
+                      color: Colors.lightBlue, fontWeight: FontWeight.bold),
+                ),
+                Text('Costo por día: S/${carDetails['RentalCost']}'),
+                Text('Costo por mes: S/${carDetails['RentalCost']*30}'),
+              ]
             ),
-            SizedBox(height: 20),
-            Text(
-                carDetails['Descripcion'] ?? 'Descripcion no disponible'
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Presentaciones',
-              style: TextStyle(
-                  color: Colors.lightBlue, fontWeight: FontWeight.bold),
-            ),
-            Text('Velocidad máxima: 170 km/h\nConsumo: 9.7 l/100 km'),
-            SizedBox(height: 10),
-            Text(
-              'Dimensiones',
-              style: TextStyle(
-                  color: Colors.lightBlue, fontWeight: FontWeight.bold),
-            ),
-            Text('Largo/Ancho/Alto: 5.325 / 1.855 / 1.815 mm\nPeso: 2.110 kg'),
-            SizedBox(height: 10),
-            Text(
-              'Propietario',
-              style: TextStyle(
-                  color: Colors.lightBlue, fontWeight: FontWeight.bold),
-            ),
-            Text(
-                'Nombre: Erick R.\nTeléfono: 9902229191\nCorreo: ericksl301@gmail.com'),
-            SizedBox(height: 10),
-            Text(
-              'Alquiler',
-              style: TextStyle(
-                  color: Colors.lightBlue, fontWeight: FontWeight.bold),
-            ),
-            Text('Costo por mes: 800\nCosto por hora: 120'),
+
             SizedBox(height: 20),
             GestureDetector(
               onTap: _showCalendar,
@@ -359,19 +374,28 @@ class _CardescriptionState extends State<Cardescription> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const Cart()),
+                  MaterialPageRoute(
+                    builder: (context) => Cart(
+                      imageUrl: carDetails['UrlImage'] ?? '',
+                      brand: carDetails['Brand'] ?? 'Marca no disponible',
+                      model: carDetails['Model'] ?? 'Modelo no disponible',
+                      licensePlate: carDetails['Placa'] ?? 'Placa no disponible',
+                      rentalCost: carDetails['RentalCost']?.toDouble() ?? 0.0,
+                    ),
+                  ),
                 );
               },
-              child: Text('Continuar'),
+              child: const Text('Continuar'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.lightBlue,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
               ),
             ),
+
           ],
         ),
       ),

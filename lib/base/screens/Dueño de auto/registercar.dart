@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'preview.dart'; // Importa la clase PreviewCar
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'preview.dart';
 
 class Registercar extends StatefulWidget {
   const Registercar({Key? key}) : super(key: key);
@@ -13,8 +14,8 @@ class Registercar extends StatefulWidget {
 class _RegistercarState extends State<Registercar> {
   DateTime? _startDate;
   DateTime? _endDate;
-  int _selectedDays = 1; // Días disponibles para alquilar (valor inicial)
-  bool _isTermsAccepted = false; // Controla si se aceptaron los términos
+  int _selectedDays = 1;
+  bool _isTermsAccepted = false;
 
   final TextEditingController _brandController = TextEditingController();
   final TextEditingController _modelController = TextEditingController();
@@ -26,21 +27,22 @@ class _RegistercarState extends State<Registercar> {
   final TextEditingController _licensePlateController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _imageUrlController = TextEditingController(); // Controlador para la URL de la imagen
 
-  File? _selectedImage;
+  String? _imageUrl;
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
 
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-    }
+  Future<String?> _getToken() async {
+    return await _storage.read(key: 'auth_token');
   }
 
-  void _navigateToPreview() {
+  Future<int?> _getUserId() async {
+    String? userId = await _storage.read(key: 'user_id');
+    return userId != null ? int.tryParse(userId) : null;
+  }
+
+  Future<void> _createVehicle() async {
     if (!_isTermsAccepted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Debes aceptar los términos y condiciones.')),
@@ -48,25 +50,86 @@ class _RegistercarState extends State<Registercar> {
       return;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PreviewCar(
-          brand: _brandController.text,
-          model: _modelController.text,
-          maxSpeed: _maxSpeedController.text,
-          consumption: _consumptionController.text,
-          dimensions: _dimensionsController.text,
-          weight: _weightController.text,
-          pricePerDay: _pricePerDayController.text,
-          licensePlate: _licensePlateController.text,
-          description: _descriptionController.text,
-          address: _addressController.text,
-          image: _selectedImage,
-          availableDays: _selectedDays, // Pasa los días seleccionados
-        ),
-      ),
-    );
+    if (_imageUrl == null || _imageUrl!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debes proporcionar una URL de imagen.')),
+      );
+      return;
+    }
+
+
+    final String? _authToken = await _getToken();
+    final int? _userId = await _getUserId();
+
+    if (_authToken == null || _userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se encontró un token de autenticación o user_id.')),
+      );
+      return;
+    }
+
+
+    final vehicleData = {
+      "userId": _userId,
+      "Brand": _brandController.text,
+      "Model": _modelController.text,
+      "Placa": _licensePlateController.text,
+      "Descripcion": _descriptionController.text,
+      "MaximumSpeed": int.tryParse(_maxSpeedController.text) ?? 0,
+      "Consumption": int.tryParse(_consumptionController.text) ?? 0,
+      "Weight": int.tryParse(_weightController.text) ?? 0,
+      "Dimensions": _dimensionsController.text,
+      "RentalCost": double.tryParse(_pricePerDayController.text) ?? 0,
+      "UrlImage": _imageUrl,
+      "RentStatus": "Disponible",
+      "RentDays": _selectedDays,
+      "Direccion": _addressController.text,
+    };
+
+    // Endpoint del API
+    final url = Uri.parse('https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/vehicle');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $_authToken',
+        },
+        body: json.encode(vehicleData),
+      );
+
+      if (response.statusCode == 201) {
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PreviewCar(
+              brand: _brandController.text,
+              model: _modelController.text,
+              maxSpeed: _maxSpeedController.text,
+              consumption: _consumptionController.text,
+              dimensions: _dimensionsController.text,
+              weight: _weightController.text,
+              pricePerDay: _pricePerDayController.text,
+              licensePlate: _licensePlateController.text,
+              description: _descriptionController.text,
+              address: _addressController.text,
+              imageUrl: _imageUrl,
+              availableDays: _selectedDays,
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${response.statusCode} - ${response.body}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ocurrió un error al crear el vehículo.')),
+      );
+    }
   }
 
   @override
@@ -144,44 +207,15 @@ class _RegistercarState extends State<Registercar> {
                 ],
               ),
               const SizedBox(height: 20),
-              // Imágenes del Auto y Descripción
+              // URL de la imagen y Descripción
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Expanded(
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: _pickImage,
-                          child: Container(
-                            height: 100,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[200],
-                              borderRadius: BorderRadius.circular(10),
-                              image: _selectedImage != null
-                                  ? DecorationImage(
-                                image: FileImage(_selectedImage!),
-                                fit: BoxFit.cover,
-                              )
-                                  : null,
-                            ),
-                            child: _selectedImage == null
-                                ? const Icon(
-                              Icons.image,
-                              size: 40,
-                              color: Colors.grey,
-                            )
-                                : null,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Adjunta las imágenes de tu auto',
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                    child: _buildInputField(
+                      'URL de la imagen',
+                      _imageUrlController,
+                      maxLines: 1,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -239,9 +273,9 @@ class _RegistercarState extends State<Registercar> {
                 ],
               ),
               const SizedBox(height: 20),
-              // Botón Previsualizar
+
               ElevatedButton(
-                onPressed: _navigateToPreview,
+                onPressed: _createVehicle,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -271,6 +305,13 @@ class _RegistercarState extends State<Registercar> {
     return TextField(
       controller: controller,
       maxLines: maxLines,
+      onChanged: (value) {
+        if (label == 'URL de la imagen') {
+          setState(() {
+            _imageUrl = value;
+          });
+        }
+      },
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(

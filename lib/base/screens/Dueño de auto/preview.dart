@@ -1,6 +1,5 @@
 import 'package:carconnect_aplication/base/screens/Due%C3%B1o%20de%20auto/product_page_car_owner.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 
 class PreviewCar extends StatelessWidget {
   final String brand;
@@ -13,8 +12,8 @@ class PreviewCar extends StatelessWidget {
   final String licensePlate;
   final String description;
   final String address;
-  final File? image;
-  final int availableDays; // Nuevo campo para días disponibles
+  final String? imageUrl; // Aquí sigue siendo un String que representa la URL de la imagen
+  final int availableDays;
 
   const PreviewCar({
     Key? key,
@@ -28,8 +27,8 @@ class PreviewCar extends StatelessWidget {
     required this.licensePlate,
     required this.description,
     required this.address,
-    this.image,
-    required this.availableDays, // Inicializamos el campo
+    required this.imageUrl,
+    required this.availableDays,
   }) : super(key: key);
 
   @override
@@ -50,9 +49,10 @@ class PreviewCar extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              image != null
-                  ? Image.file(
-                image!,
+              // Usamos Image.network en lugar de Image.file
+              imageUrl != null && imageUrl!.isNotEmpty
+                  ? Image.network(
+                imageUrl!,
                 width: double.infinity,
                 height: 200,
                 fit: BoxFit.cover,
@@ -94,10 +94,10 @@ class PreviewCar extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => ProductPageCarOwner(
-                        vehiclePlate: licensePlate, // Placa del vehículo
-                        dailyRent: pricePerDay,    // Renta diaria
-                        vehicleBrand: brand,       // Marca del vehículo
-                        vehicleModel: model,       // Modelo del vehículo
+                        vehiclePlate: licensePlate,
+                        dailyRent: pricePerDay,
+                        vehicleBrand: brand,
+                        vehicleModel: model,
                       ),
                     ),
                   );
@@ -123,19 +123,6 @@ class PreviewCar extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          Text(value, style: const TextStyle(fontSize: 16, color: Colors.grey)),
-        ],
       ),
     );
   }

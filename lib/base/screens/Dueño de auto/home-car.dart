@@ -1,8 +1,12 @@
+import 'package:carconnect_aplication/base/screens/Cliente/cardescription.dart';
 import 'package:carconnect_aplication/base/screens/Due%C3%B1o%20de%20auto/registercar.dart';
 import 'package:carconnect_aplication/base/screens/shared/profile.dart';
 import 'package:carconnect_aplication/base/screens/shared/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:carconnect_aplication/base/screens/Cliente/catalogue.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class HomeCar extends StatefulWidget {
   const HomeCar({super.key});
@@ -118,75 +122,181 @@ class RentalsScreen extends StatelessWidget {
   }
 }
 
-class MyCarsScreen extends StatelessWidget {
+class MyCarsScreen extends StatefulWidget {
   const MyCarsScreen({super.key});
 
   @override
+  _MyCarsScreenState createState() => _MyCarsScreenState();
+}
+
+class _MyCarsScreenState extends State<MyCarsScreen> {
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  List<dynamic> userVehicles = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserVehicles();
+  }
+
+  Future<void> _fetchUserVehicles() async {
+    final userId = await _storage.read(key: 'user_id');
+    final token = await _storage.read(key: 'auth_token');
+
+    if (userId == null || token == null) {
+      print('User ID o Token no disponible. El usuario no está autenticado.');
+      return;
+    }
+
+    final url = Uri.parse(
+        'https://azuredrivesafeapp-gehpfxd0gzhxf9a0.eastus-01.azurewebsites.net/api/v1/users/$userId/vehicles');
+
+    try {
+      final response = await http.get(url, headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          userVehicles = data;
+          isLoading = false;
+        });
+      } else {
+        print('Error al cargar los vehículos: ${response.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error al hacer la solicitud: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          ListView(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(16.0),
-            children: <Widget>[
-              CarCard(
-                imageUrl: 'https://example.com/car_image.png',
-                title: 'Kia Sportage 2021',
-                description: 'Negro / TRS 998',
-                price: 'S/. 120.00',
-                onPressedDetails: () {
-                  // Aquí puedes añadir la lógica para ver los detalles del coche.
-                },
-              ),
-              const SizedBox(height: 16),
-              CarCard(
-                imageUrl: 'https://example.com/car_image2.png',
-                title: 'Toyota Corolla 2022',
-                description: 'Blanco / ABC 123',
-                price: 'S/. 150.00',
-                onPressedDetails: () {
-                  // Aquí puedes añadir la lógica para ver los detalles del coche.
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-          const SizedBox(height: 30),
-          const Text(
-            'Añade más autos para ser alquilados',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (userVehicles.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.car_rental, size: 100, color: Colors.grey),
+            const SizedBox(height: 10),
+            const Text(
+              'Aún no tienes vehículos registrados.',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
+            const SizedBox(height: 10),
+            const Text(
+              'Agrega vehículos a tu cuenta para comenzar a gestionarlos.',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 30),
+            const Text(
+              'Añade más autos para ser alquilados',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Registercar()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              ),
+              child: const Text(
+                'Añadir auto',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Si hay vehículos, mostramos la lista de vehículos
+    return ListView.builder(
+      padding: const EdgeInsets.all(16.0),
+      itemCount: userVehicles.length + 1, // +1 para agregar el botón al final
+      itemBuilder: (context, index) {
+        if (index < userVehicles.length) {
+          // Mostrar los vehículos
+          final vehicle = userVehicles[index];
+          return CarCard(
+            imageUrl: vehicle['UrlImage'] ?? '',
+            title: vehicle['Brand'] ?? 'Marca no disponible',
+            description: vehicle['Descripcion'] ?? 'Descripción no disponible',
+            price: 'S/. ${vehicle['RentalCost'] ?? 0}',
+            onPressedDetails: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => Registercar()),
+                MaterialPageRoute(
+                  builder: (context) => Cardescription(carId: vehicle['id'].toString()),
+                ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+          );
+        } else {
+          // Mostrar el mensaje y el botón "Añadir auto" al final
+          return Column(
+            children: [
+              const SizedBox(height: 30),
+              const Text(
+                'Añade más autos para ser alquilados',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-            ),
-            child: const Text(
-              'Añadir auto',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => Registercar()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                ),
+                child: const Text(
+                  'Añadir auto',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
-          ),
-          const SizedBox(height: 30),
-        ],
-      ),
+            ],
+          );
+        }
+      },
     );
   }
 }
